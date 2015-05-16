@@ -1,4 +1,4 @@
-FROM kricker/server-base:latest
+FROM kricker/prod-server-base:latest
 
 ENV REBUILD yes
 
@@ -82,8 +82,8 @@ RUN if [ -f /etc/nginx/nginx.conf ] && [ -f /src/config/nginx/nginx.conf ]; \
 	fi
 
 # Add start script.
-COPY start2.sh /root/start2.sh
-RUN chmod 777 /root/start2.sh
+COPY drupal-base-start.sh /root/drupal-base-start.sh
+RUN chmod 777 /root/drupal-base-start.sh
 
 # Define default command.
-CMD ["/root/start2.sh"]
+CMD ["/root/drupal-base-start.sh"]
