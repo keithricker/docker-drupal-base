@@ -2,8 +2,6 @@
 
 # Run the parent start script if there is one.
 echo "entering the start script ...."
-startsh=/root.start.sh
-if [ -f "$startsh" ]; then sh /root/start.sh; fi
 
 # Download Drupal if not already there
 indexfile=/srv/www/siterooot/index.php

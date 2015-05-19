@@ -86,4 +86,7 @@ COPY drupal-base-start.sh /root/drupal-base-start.sh
 RUN chmod 777 /root/drupal-base-start.sh
 
 # Define default command.
-CMD ["/root/drupal-base-start.sh"]
+CMD sh /root/server-base-start.sh && \
+	sh /root/prod-server-base-start.sh & \
+	sh /root/drupal-base-start.sh && \
+	/sbin/my_init
