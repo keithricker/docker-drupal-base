@@ -2,13 +2,6 @@ FROM kricker/prod-server-base:latest
 
 ENV REBUILD yes
 
-# Create files directory if it doesn't yet exist.
-RUN cd /srv/www/siteroot && filesdirectory=/srv/www/siteroot/sites/default/files
-RUN if [ ! -d "$filesdirectory" ]; then \
-  mkdir -p /srv/www/siteroot/sites/default/files; \
-fi
-RUN chmod a+w /srv/www/siteroot/sites/default -R
-
 # Install Composer.
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer

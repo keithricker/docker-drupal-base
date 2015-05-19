@@ -10,9 +10,18 @@ if [ -f "$indexfile" ];
 		echo "Site already installed. Yay.";
 	else
 		echo "Site not installed. Pulling latest drupal 7 ... "
-		cd /srv/www && drush dl drupal && mv /srv/www/drupal-7* /srv/www/siteroot
-		cd /srv/www/siteroot;
+		cd /srv/www && drush dl drupal && mv /srv/www/drupal-7*/* /srv/www/siteroot
+		cd /srv/www/siteroot
+                rm index.html;
 fi
+
+# Create files directory if it doesn't yet exist.
+cd /srv/www/siteroot && filesdirectory=/srv/www/siteroot/sites/default/files
+
+if [ ! -d "$filesdirectory" ]; then
+  mkdir -p /srv/www/siteroot/sites/default/files;
+fi
+chmod a+w /srv/www/siteroot/sites/default -R
 
 if [ -v MYSQL_PORT_3306_TCP_ADDR ]; then mysqlip=$MYSQL_PORT_3306_TCP_ADDR else mysqlip=localhost; fi
 if [ -v DRUPAL_DB_USERNAME ]; then drupaluname=$DRUPAL_DB_USERNAME else drupaluname=root; fi
