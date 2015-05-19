@@ -7,7 +7,7 @@ echo "entering the start script ...."
 indexfile=/srv/www/siterooot/index.php
 if [ -f "$indexfile" ];
 	then
-		echo "Site already installed. Yay."
+		echo "Site already installed. Yay.";
 	else
 		echo "Site not installed. Pulling latest drupal 7 ... "
 		cd /srv/www && drush dl drupal && mv /srv/www/drupal-7* /srv/www/siteroot
@@ -17,7 +17,7 @@ fi
 if [ -v MYSQL_PORT_3306_TCP_ADDR ]; then mysqlip=$MYSQL_PORT_3306_TCP_ADDR else mysqlip=localhost; fi
 if [ -v DRUPAL_DB_USERNAME ]; then drupaluname=$DRUPAL_DB_USERNAME else drupaluname=root; fi
 if [ -v DRUPAL_DB_PASSWORD ]; 
-	then drupalpwd=$DRUPAL_DB_PASSWORD 
+	then drupalpwd=$DRUPAL_DB_PASSWORD; 
 else 
 	if [ -v MYSQ_ROOT_PASSWORD ]; 
 		then drupalpwd=$MYSQL_ROOT_PASSWORD

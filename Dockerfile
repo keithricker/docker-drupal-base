@@ -87,6 +87,7 @@ RUN chmod 777 /root/drupal-base-start.sh
 
 # Define default command.
 CMD sh /root/server-base-start.sh && \
-	sh /root/prod-server-base-start.sh & \
+	sh /root/prod-server-base-start.sh && \
+	sh /root/varnish-start.sh & \
 	sh /root/drupal-base-start.sh && \
 	/sbin/my_init
