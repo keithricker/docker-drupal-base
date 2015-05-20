@@ -7,8 +7,7 @@ echo "entering the start script ...."
 mysqlip=localhost && drupaldbname=drupal && drupaluname=root && drupalpwd=password && drupaldbport=3306
 if [ -v KB_APP_SETTINGS ];
 	then 
-	# If kalabox is being used, then we'll need some tools to parse the database settings
-	apt-get install jq
+	apt-get install jq;
 	kbdbsettings=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database');
 	if [ "$kbdbsettings" != "null" ];
 		then
@@ -17,7 +16,7 @@ if [ -v KB_APP_SETTINGS ];
 		drupalpwd=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.password')
 		drupaldbport=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.port'); 
 		drupaldbname=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database');
-	fi
+	fi;
 fi
 
 # If not using Kalabox, then we'll check for environment variables that may have been passed
