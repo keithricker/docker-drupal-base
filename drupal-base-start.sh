@@ -5,16 +5,19 @@ echo "entering the start script ...."
 
 # First, we'll define our default db connection vars
 mysqlip=localhost && drupaldbname=drupal && drupaluname=root && drupalpwd=password && drupaldbport=3306
-kbdbsettings=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database');
-if [ -v KB_APP_SETTINGS ] && [ "$kbdbsettings" != "null" ]; 
+if [ -v KB_APP_SETTINGS ];
 	then 
 	# If kalabox is being used, then we'll need some tools to parse the database settings
 	apt-get install jq
-	mysqlip=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.host') 
-	drupaluname=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.username')
-	drupalpwd=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.password')
-	drupaldbport=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.port'); 
-	drupaldbname=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database');
+	kbdbsettings=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database');
+	if [ "$kbdbsettings" != "null" ];
+		then
+		mysqlip=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.host') 
+		drupaluname=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.username')
+		drupalpwd=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.password')
+		drupaldbport=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.port'); 
+		drupaldbname=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database');
+	fi
 fi
 
 # If not using Kalabox, then we'll check for environment variables that may have been passed
