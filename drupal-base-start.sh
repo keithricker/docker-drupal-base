@@ -5,24 +5,28 @@ echo "entering the start script ...."
 
 # First, we'll define our default db connection vars
 mysqlip=localhost && drupaldbname=drupal && drupaluname=root && drupalpwd=password && drupaldbport=3306
-if [ -v KB_APP_SETTINGS ]
+if [ "${KB_APP_SETTINGS}" != "" ];
     then 
     apt-get install jq
-    kbdbsettings=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database')
-if [ "$kbdbsettings" != "null" ];
-    then 
-    mysqlip=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.host');
+    kbdbsettings=$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.database')
+if [ "${kbdbsettings}" != "null" ];
+    then
+    mysqlip=$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.host');
+    drupaluname=$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.username');
+    drupalpwd =$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.password');
+    drupaldbname =$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.database');
+    drupaldbport =$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.port');
 fi;
 fi
 
 # If not using Kalabox, then we'll check for environment variables that may have been passed
 # or auto-set in the docker run command.
-if [ -v MYSQL_PORT_3306_TCP_ADDR ]; then mysqlip=$MYSQL_PORT_3306_TCP_ADDR; fi
-if [ -v DRUPAL_DB_USERNAME ]; then drupaluname=$DRUPAL_DB_USERNAME; fi
-if [ -v DRUPAL_DB_PASSWORD ]; 
-    then drupalpwd=$DRUPAL_DB_PASSWORD; 
+if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then mysqlip="${MYSQL_PORT_3306_TCP_ADDR}"; fi
+if [ "${DRUPAL_DB_USERNAME}" != "" ]; then drupaluname="${DRUPAL_DB_USERNAME}"; fi
+if [ "${DRUPAL_DB_PASSWORD}" != "" ]; 
+    then drupalpwd="${DRUPAL_DB_PASSWORD}"; 
 else 
-if [ -v MYSQ_ROOT_PASSWORD ]; then drupalpwd=$MYSQL_ROOT_PASSWORD; fi 
+if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_ROOT_PASSWORD}"; fi 
 fi
 
 # Download Drupal if not already there
