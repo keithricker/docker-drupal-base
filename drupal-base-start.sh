@@ -5,18 +5,14 @@ echo "entering the start script ...."
 
 # First, we'll define our default db connection vars
 mysqlip=localhost && drupaldbname=drupal && drupaluname=root && drupalpwd=password && drupaldbport=3306
-if [ -v KB_APP_SETTINGS ];
+if [ -v KB_APP_SETTINGS ]
 	then 
-	apt-get install jq;
-	kbdbsettings=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database');
-	if [ "$kbdbsettings" != "null" ];
-		then
-		mysqlip=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.host') 
-		drupaluname=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.username')
-		drupalpwd=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.password')
-		drupaldbport=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.port'); 
-		drupaldbname=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database');
-	fi;
+	apt-get install jq
+	kbdbsettings=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.database')
+if [ "$kbdbsettings" != "null" ];
+	then 
+	mysqlip=$(echo $KB_APP_SETTINGS | jq '.databases.default.default.host');
+fi;
 fi
 
 # If not using Kalabox, then we'll check for environment variables that may have been passed
@@ -26,19 +22,19 @@ if [ -v DRUPAL_DB_USERNAME ]; then drupaluname=$DRUPAL_DB_USERNAME; fi
 if [ -v DRUPAL_DB_PASSWORD ]; 
 	then drupalpwd=$DRUPAL_DB_PASSWORD; 
 else 
-	if [ -v MYSQ_ROOT_PASSWORD ]; then drupalpwd=$MYSQL_ROOT_PASSWORD; fi 
+if [ -v MYSQ_ROOT_PASSWORD ]; then drupalpwd=$MYSQL_ROOT_PASSWORD; fi 
 fi
 
 # Download Drupal if not already there
 indexfile=/srv/www/siterooot/index.php
 if [ -f "$indexfile" ];
 	then
-		echo "Site already installed. Yay.";
-	else
-		echo "Site not installed. Pulling latest drupal 7 ... "
-		cd /srv/www && drush dl drupal && mv /srv/www/drupal-7*/* /srv/www/siteroot
-		cd /srv/www/siteroot
-        rm index.html && chown -R www-data:www-data /srv/www/siteroot;
+	echo "Site already installed. Yay.";
+else
+	echo "Site not installed. Pulling latest drupal 7 ... "
+	cd /srv/www && drush dl drupal -y && mv /srv/www/drupal-7*/* /srv/www/siteroot
+	cd /srv/www/siteroot
+    rm index.html && chown -R www-data:www-data /srv/www/siteroot;
 fi
 
 # Create files directory if it doesn't yet exist.
@@ -53,7 +49,7 @@ chmod a+w /srv/www/siteroot/sites/default -R
 settingsfile=/srv/www/siterooot/sites/default/settings.php
 
 if [ ! -f "$settingsfile" ];
-then
+	then
 	# Use drush to install a default generic drupal site and database installation
     drush si -y minimal --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=admin
     chown -R www-data:www-data /srv/www/siteroot/sites;
