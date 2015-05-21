@@ -41,7 +41,7 @@ docker run --name database -p 49158:3306 -d kricker/mysql-base:latest
 
 ####Fire up the Drupal Server
 
-If we want to work on our code locally without having to SSH in to anything, then we'll need to create some shared folders where our code can live. For this particular example, we'll assume that our app's code will live in a directory aptly named "code," so that your directory structure will be code/index.php and so on. If you plan to use one of your existing D7 sites, then you'll just want to copy your code over to that directory.
+If we want to work on our code locally without having to SSH in to anything, then we'll need to create some shared folders where our code can live. For this particular example, we'll assume that our app's code will live in a directory aptly named "code," so that your directory structure will be my-drupal-app*/code/*index.php and so on. If you plan to use one of your existing D7 sites, then you'll just want to copy your code over to that directory.
 
 The -v argument in the example run command below is used to map the "code" folder of your project's working directory to the Drupal Server's root folder in the container.
 
