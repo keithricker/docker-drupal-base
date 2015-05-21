@@ -1,9 +1,9 @@
 # drupal-base
 A lamp server for Drupal 7. Includes varnish and memcached. Key drupal components like composer and drush also included. Intended for use as a production web server. Mysql is not installed (intended for linking to separate database container). Optional ssh server.
 
-###Options
+####In Brief:
 
-- Extends Phusion Base image (ubuntu)
+- Extends Phusion Base image (ubuntu), running Apache
 - Compatible with Kalabox 2 (but not required)
 - Optional SSH server
 - Varnish is pre-configured (works out of the box)
@@ -13,7 +13,7 @@ A lamp server for Drupal 7. Includes varnish and memcached. Key drupal component
 
 ####First things first:
 
-First, you'll want to grab a mysql container and get that running first. If you use my custom mysql container, then you will be able to get things up and running with minimal configuration required, but you can use any available mysql or mariadb container.
+First, you'll want to grab a mysql container and get that running. If you use my custom mysql container, then you will be able to get things up and running with minimal configuration and download time required, but you can use any available mysql or mariadb image.
 
 ####Fire up the Mysql Server
 
@@ -21,7 +21,7 @@ To enable use of the database, you'll need to have a port mapping from the host 
 
 ```
 
-docker run -it --name drupalserver -p 8080:80 -p 49158:3306 -d kricker/drupal-base:latest
+docker run -it --name database -p 49158:3306 -d kricker/mysql-base:latest
 
 ```
 
