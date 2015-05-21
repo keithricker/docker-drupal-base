@@ -35,7 +35,7 @@ VBoxManage modifyvm "boot2docker-vm" --natpf1 "mysql,tcp,,49158,,49158";
 
 [restart boot2docker]
 
-docker run --name database -p 49158:3306 -p 49158:3306 -d kricker/mysql-base:latest
+docker run --name database -p 49158:3306 -d kricker/mysql-base:latest
 
 ```
 
