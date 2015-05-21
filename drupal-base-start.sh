@@ -40,7 +40,7 @@ else
     cd /srv/www/siteroot
     rm index.html && chown -R www-data:www-data /srv/www/siteroot;
     # Use drush to install a default generic drupal site and database installation
-    drush si -y standard --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --acount-name=admin --account-pass=password --site-name="Your Drupal7 Site"
+    drush si -y standard --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
     chown -R www-data:www-data /srv/www/siteroot/sites;
     installsite=true;
 fi
