@@ -115,7 +115,7 @@ If you're using this image with Kalabox 2, then it is recommended that you run t
 
 And all other steps for using Kalabox will apply, with the default database, etc. More instructions here:
 
-https://github.com/kalabox/kalabox/wiki/Backdrop-Guide#user-content-import-your-database-optionaly
+https://github.com/kalabox/kalabox/wiki/Backdrop-Guide#user-content-import-your-database-optional
 
 Note: If you aren't tied down or restricted to use of Apache and/or Ubuntu server, then there really aren't any notable advantages to running this base image over Kalabox's stock App Server, so you should probably just go with theirs if at all possible. This is just another option for those who either prefer an Apache/Ubuntu setup, or who are locked in to it for whatever reason.
 
