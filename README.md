@@ -17,7 +17,7 @@ You'll want to grab a mysql container and get that running. If you use my custom
 
 ####Fire up the Mysql Server
 
-To enable use of the database, you'll need to have a port mapping from the host machine to the container's port 3306 ... so you will just need to add that as an extra parameter to the *"docker run"* command. As an example, we'll just use port 49158.
+In order to enable access to the database, you'll need to have a port mapping from the host machine to the container's port 3306 ... so you will just need to add that as an extra parameter to the *"docker run"* command. As an example, we'll just use port 49158.
 
 ```
 
