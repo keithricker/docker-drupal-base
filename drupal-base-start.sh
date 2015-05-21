@@ -4,7 +4,7 @@
 echo "entering the start script ...."
 
 # First, we'll define our default db connection vars
-mysqlip=localhost && drupaldbname=drupal && drupaluname=root && drupalpwd=password && drupaldbport=3306
+mysqlip=localhost && drupaldbname=mysite && drupaluname=root && drupalpwd="" && drupaldbport=3306
 if [ "${KB_APP_SETTINGS}" != "" ];
     then 
     apt-get install jq
