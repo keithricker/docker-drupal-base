@@ -13,7 +13,7 @@ A lamp server for Drupal 7. Includes varnish and memcached. Key drupal component
 
 ####First things first:
 
-First, you'll want to grab a mysql container and get that running. If you use my custom mysql container, then you will be able to get things up and running with minimal configuration and download time required, but you can use any available mysql or mariadb image.
+You'll want to grab a mysql container and get that running. If you use my custom mysql container, then you will be able to get things up and running with minimal configuration and download time required, but you can use any available mysql or mariadb image.
 
 ####Fire up the Mysql Server
 
@@ -41,15 +41,19 @@ docker run --name database -p 49158:3306 -d kricker/mysql-base:latest
 
 ####Fire up the Drupal Server
 
-If we want to work on our code locally without having to SSH in to anything, then we'll need to create some shared folders where our code can live. For this particular example, we'll assume that our app's code will live in a directory aptly named "code," so that your directory structure will be my-drupal-app*/code/*index.php and so on. If you plan to use one of your existing D7 sites, then you'll just want to copy your code over to that directory.
+If we want to work on our code locally without having to SSH in to anything, then we'll need to have a few directories we can share between our host machine and the container. For this particular example, we'll assume that our app's code will live in a directory aptly named "code," so that your project's directory on your host machine structure will be my-drupal-project/code/index.php or something along those lines. If you plan to use one of your existing D7 sites, then you'll just copy your code over to that directory.
 
-The -v argument in the example run command below is used to map the "code" folder of your project's working directory to the Drupal Server's root folder in the container.
+The -v argument in the example run command below is used to map the "code" folder of your project's working directory (on your machine) to the Drupal container's web root folder.
 
-In order for this to work with VM, your project will need to live somewhere within your "Home" path (i.e. ~/my-websites/drupal or something along those lines).
+In order for this to work with VM, your project will need to live somewhere within your "Home" path (i.e. ~/my-webapps/my-drupal-project or something along those lines).
 
-*If you prefer to start from scratch, then leave the code folder completely bare, and the Drupal Base Image will install a fresh D7 site in that directory for you.*
+#####*If you prefer to start from scratch, then leave the code folder completely bare, and the Drupal Base Image will install a fresh D7 site in that directory for you, with defaults:*
+
+#####*Login ID="admin" and password="password"*
 
 ```
+# From your project's directory, create a folder named "code" and run this script.
+# If you want to use an existing drupal project, then copy that code to the code folder first -- then import your database after it runs. (See "Accessing the Database" below)
 
 docker run -it --name drupalserver --link database:mysql -d -p 8080:80 -v $(pwd)/code:/srv/www/siteroot kricker/drupal-base:latest 2> /dev/null
 
@@ -115,7 +119,7 @@ If you're using this image with Kalabox 2, then it is recommended that you run t
 
 And all other steps for using Kalabox will apply, with the default database, etc. More instructions here:
 
-https://github.com/kalabox/kalabox/wiki/Backdrop-Guide#user-content-import-your-database-optional
+https://github.com/kalabox/kalabox/wiki/Backdrop-Guide#user-content-import-your-database-optionaly
 
 Note: If you aren't tied down or restricted to use of Apache and/or Ubuntu server, then there really aren't any notable advantages to running this base image over Kalabox's stock App Server, so you should probably just go with theirs if at all possible. This is just another option for those who either prefer an Apache/Ubuntu setup, or who are locked in to it for whatever reason.
 
