@@ -84,7 +84,7 @@ With the port mapping of 49158:3306 as outlined above ... the database can be ac
 
 If used with *kricker/mysql-base*, then by default, there is a database set up named "mysite," with default user "root" and no password. 
 
-These settings won't with Kalabox without some extra config, so if you're using Kalabox, you should skip down to the instructions below.
+These settings won't work with Kalabox without some extra config, so if you're using Kalabox, you should skip down to the instructions below.
 
 ```
 
