@@ -11,11 +11,11 @@ if [ "${KB_APP_SETTINGS}" != "" ];
     kbdbsettings=$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.database')
 if [ "${kbdbsettings}" != "null" ];
     then
-    mysqlip=$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.host');
-    drupaluname=$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.username');
-    drupalpwd =$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.password');
-    drupaldbname =$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.database');
-    drupaldbport =$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.port');
+    mysqlip=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.host') | tr -d '"');
+    drupaldbname=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.database') | tr -d '"');
+    drupaluname=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.username') | tr -d '"');
+    drupalpwd=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.password') | tr -d '"');
+    drupaldbport=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.port') | tr -d '"');
 fi;
 fi
 
@@ -40,7 +40,7 @@ else
     cd /srv/www/siteroot
     rm index.html && chown -R www-data:www-data /srv/www/siteroot;
     # Use drush to install a default generic drupal site and database installation
-    drush si -y minimal --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=admin
+    drush si -y standard --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --acount-name=admin --account-pass=password --site-name="Your Drupal7 Site"
     chown -R www-data:www-data /srv/www/siteroot/sites;
     installsite=true;
 fi
@@ -70,8 +70,8 @@ if [ ! -v installsite ] && [ "$kbdbsettings" != "null" ];
     sed -i "s/'password' => '.*'/'password' => '${drupalpwd}'/g" /srv/www/siteroot/sites/default/settings.php
     sed -i 's/"password" => ".*"/"password" => "${drupalpwd}"/g' /srv/www/siteroot/sites/default/settings.php;
 
-    sed -i "s/'database' => '.*'/'database' => '${drupaluname}'/g" /srv/www/siteroot/sites/default/settings.php
-    sed -i 's/"database" => ".*"/"database" => "${drupaluname}"/g' /srv/www/siteroot/sites/default/settings.php;
+    sed -i "s/'database' => '.*'/'database' => '${drupaldbname}'/g" /srv/www/siteroot/sites/default/settings.php
+    sed -i 's/"database" => ".*"/"database" => "${drupaldbname}"/g' /srv/www/siteroot/sites/default/settings.php;
 
     sed -i "s/'port' => '.*'/'port' => '${drupaldbport}'/g" /srv/www/siteroot/sites/default/settings.php
     sed -i 's/"port" => ".*"/"port" => "${drupaldbport}"/g' /srv/www/siteroot/sites/default/settings.php;
