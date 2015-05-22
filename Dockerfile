@@ -74,6 +74,8 @@ RUN if [ -f /etc/nginx/nginx.conf ] && [ -f /src/config/nginx/nginx.conf ]; \
     ln -s /src/config/nginx/site.conf /etc/nginx/sites-enabled/default; \
 	fi
 
+# Add .htaccess file to site root
+COPY .htaccess /srv/www/siteroot/.htaccess
 # Add start script.
 COPY drupal-base-start.sh /root/drupal-base-start.sh
 RUN chmod 777 /root/drupal-base-start.sh
