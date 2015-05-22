@@ -53,10 +53,8 @@ if [ ! -d "$filesdirectory" ]; then
 fi
 chmod a+w /srv/www/siteroot/sites/default -R
 
-# Configure settings.php 
-settingsfile=/srv/www/siterooot/sites/default/settings.php
-#first check that it's not a symlink
-if [ -L $settingsfile ]; then settingsfile=$(readlink -f /srv/www/siteroot/sites/default/settings.php); fi
+# Configure settings.php, with contingency in case it is a symlink
+settingsfile=$(readlink -f /srv/www/siteroot/sites/default/settings.php);
 
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
