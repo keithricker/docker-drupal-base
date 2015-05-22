@@ -30,31 +30,31 @@ if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_ROOT_PASSWORD}"; f
 fi
 
 # Download Drupal if not already there
-indexfile=/srv/www/siterooot/index.php
-if [ -f "$indexfile" ];
+indexfile="/data/index.php"
+if [ -f "/data/index.php" ];
     then
     echo "Site already installed. Yay.";
 else
-    echo "Site not installed. Pulling latest drupal 7 ... "
+    echo "Site not installed. Pulling latest drupal 7 ... ";
     cd /srv/www && drush dl drupal -y && mv /srv/www/drupal-7*/* /srv/www/siteroot
-    cd /srv/www/siteroot
-    rm index.html && chown -R www-data:www-data /srv/www/siteroot;
+    cd /data
+    rm index.html && chown -R www-data:www-data /data;
     # Use drush to install a default generic drupal site and database installation
     drush si -y standard --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
-    chown -R www-data:www-data /srv/www/siteroot/sites;
+    chown -R www-data:www-data /data;
     installsite=true;
 fi
 
 # Create files directory if it doesn't yet exist.
-cd /srv/www/siteroot && filesdirectory=/srv/www/siteroot/sites/default/files
+cd /data && filesdirectory=/data/sites/default/files
 
 if [ ! -d "$filesdirectory" ]; then
-  mkdir -p /srv/www/siteroot/sites/default/files;
+  mkdir -p /data/sites/default/files;
 fi
-chmod a+w /srv/www/siteroot/sites/default -R
+chmod a+w /data/sites/default -R
 
 # Configure settings.php, with contingency in case it is a symlink
-settingsfile=$(readlink -f /srv/www/siteroot/sites/default/settings.php);
+settingsfile=$(readlink -f /data/sites/default/settings.php);
 
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
@@ -84,14 +84,14 @@ if [ ! -v installsite ] && [ "$kbdbsettings" != "null" ];
     sed 's/"port" => ".*"/"port" => "${drupaldbport}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php;
 fi
 
-varnishdir=/srv/www/siteroot/sites/all/modules/varnish
+varnishdir=/data/sites/all/modules/varnish
 installmodules=false
 if [ -v installsite ] || [ -v REBUILD ]; then installmodules=true; fi
 if [ -d "$varnishdir" ]; then installmodules=false; fi
 
 if [ "$installmodules" = true ];
     then
-    cd /srv/www/siteroot
+    cd /data
     drush dl admin_menu -y && drush_dl devel -y && drush dl simpletest -y
     drush en -y admin_menu simpletest
     drush vset "admin_menu_tweak_modules" 1	
