@@ -55,26 +55,35 @@ chmod a+w /srv/www/siteroot/sites/default -R
 
 # Configure settings.php 
 settingsfile=/srv/www/siterooot/sites/default/settings.php
+#first check that it's not a symlink
+if [ -L $settingsfile ]; then settingsfile=$(readlink -f /srv/www/siteroot/sites/default/settings.php); fi
 
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
-if [ ! -v installsite ] && [ "$kbdbsettings" != "null" ];
+# Also, if app container is restarting, then we want to replace the mysql host with new ip.
+
+if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ];
     then
     # Alter the settings.php file to point to the right IP address.
-    sed -i "s/'host' => '.*'/'host' => '${mysqlip}'/g" /srv/www/siteroot/sites/default/settings.php
-    sed -i 's/"host" => ".*"/"host" => "${mysqlip}"/g' /srv/www/siteroot/sites/default/settings.php;
+    sed "s/'host' => '.*'/'host' => '${mysqlip}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed 's/"host" => ".*"/"host" => "${mysqlip}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+fi
 
-    # Alter the settings.php file to configure the database name
-    sed -i "s/'username' => '.*'/'username' => '${drupaluname}'/g" /srv/www/siteroot/sites/default/settings.php
-    sed -i 's/"username" => ".*"/"username" => "${drupaluname}"/g' /srv/www/siteroot/sites/default/settings.php;
+if [ ! -v installsite ] && [ "$kbdbsettings" != "null" ];
+    then
+    sed "s/'host' => '.*'/'host' => '${mysqlip}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed 's/"host" => ".*"/"host" => "${mysqlip}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
 
-    sed -i "s/'password' => '.*'/'password' => '${drupalpwd}'/g" /srv/www/siteroot/sites/default/settings.php
-    sed -i 's/"password" => ".*"/"password" => "${drupalpwd}"/g' /srv/www/siteroot/sites/default/settings.php;
+    sed "s/'username' => '.*'/'username' => '${drupaluname}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed 's/"username" => ".*"/"username" => "${drupaluname}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
 
-    sed -i "s/'database' => '.*'/'database' => '${drupaldbname}'/g" /srv/www/siteroot/sites/default/settings.php
-    sed -i 's/"database" => ".*"/"database" => "${drupaldbname}"/g' /srv/www/siteroot/sites/default/settings.php;
+    sed "s/'password' => '.*'/'password' => '${drupalpwd}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed 's/"password" => ".*"/"password" => "${drupalpwd}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
 
-    sed -i "s/'port' => '.*'/'port' => '${drupaldbport}'/g" /srv/www/siteroot/sites/default/settings.php
-    sed -i 's/"port" => ".*"/"port" => "${drupaldbport}"/g' /srv/www/siteroot/sites/default/settings.php;
+    sed "s/'database' => '.*'/'database' => '${drupaldbname}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed 's/"database" => ".*"/"database" => "${drupaldbname}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+
+    sed "s/'port' => '.*'/'port' => '${drupaldbport}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed 's/"port" => ".*"/"port" => "${drupaldbport}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php;
 fi
 
 varnishdir=/srv/www/siteroot/sites/all/modules/varnish
