@@ -96,7 +96,7 @@ if [ "$installmodules" = true ];
     drush en -y admin_menu simpletest
     drush vset "admin_menu_tweak_modules" 1	
     # set up varnish and memcached
-    drush dl varnish memcache && drush en varnish memcache memcache_admin -y
+    drush dl varnish memcache && drush en varnish -y memcache -y memcache_admin -y
     drush vset cache 1 && drush vset page_cache_maximum_age 3600 && drush vset varnish_version 3
     unset REBUILD;
 fi

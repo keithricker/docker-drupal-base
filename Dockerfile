@@ -45,7 +45,14 @@ RUN if [ -f /src/config/php/20-xdebug.ini ] && [ -f /etc/php5/conf.d/20-xdebug.i
 
 # For compatibility with Apache. 
 # Again, we don't force these settings on those wishing to use other systems.
-# Create some sym-links
+# Create some sym-links to config files
+
+RUN if [ -f src/config/php/php.ini ] && [ -f /etc/php5/apache2/php.ini ]; \
+	then \
+	rm /etc/php5/apache2/php.ini \
+    ln -s /src/config/php/php.ini /etc/php5/apache2/php.ini \
+    sed -i 's/;daemonize = yes/daemonize = no/g' /etc/php5/fpm/php-fpm.conf; \
+    fi
 RUN if [ -f /src/config/apache2/sites-enabled/www.conf ] && [ -f /etc/apache2/sites-enabled/www.conf ]; \
 	then \
     rm /etc/apache2/sites-enabled/www.conf \
