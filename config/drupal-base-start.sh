@@ -43,7 +43,7 @@ else
     # If no drupal installation, then use drush to install generic drupal site and database
     if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
     then
-    drush si -y standard --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
+    drush si -y spark --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
     installsite=true;
     fi;
     chown -R www-data:www-data /data;
