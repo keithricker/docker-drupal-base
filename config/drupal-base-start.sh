@@ -96,7 +96,7 @@ if [ -d "$varnishdir" ]; then installmodules=false; fi
 if [ "$installmodules" = true ];
     then
     cd /data
-    drush dl admin_menu -y && drush_dl devel -y && drush dl simpletest -y
+    drush dl admin_menu -y && drush dl devel -y && drush dl simpletest -y
     drush en -y admin_menu simpletest
     drush vset "admin_menu_tweak_modules" 1
     # set up varnish and memcached
