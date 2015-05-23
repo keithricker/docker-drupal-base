@@ -97,8 +97,7 @@ if [ "$installmodules" = true ];
     then
     cd /data
     drush dl admin_menu -y && drush dl devel -y && drush dl simpletest -y
-    drush en -y admin_menu simpletest
-    drush vset "admin_menu_tweak_modules" 1
+    drush en -y simpletest
     # set up varnish and memcached
     drush dl varnish memcache && drush en varnish -y memcache -y memcache_admin -y
     # grab entity-related modules
