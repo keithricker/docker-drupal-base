@@ -40,7 +40,7 @@ RUN sh /src/config/nginx-symlinks.sh
 RUN sh /src/config/apache-symlinks.sh
 
 # Add .htaccess file to site root
-COPY .htaccess /srv/www/siteroot/.htaccess
+COPY .htaccess /srv/www/.htaccess
 
 # Add start script.
 RUN chmod -R 777 /src/config
