@@ -6,7 +6,7 @@ ENV REBUILD yes
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
 
-# Install Drush 6.
+# Install Drush 7.
 RUN composer global require drush/drush:7.*
 RUN composer global update
 RUN ln -s /root/.composer/vendor/bin/drush /usr/bin
@@ -18,78 +18,36 @@ RUN drush dl drush_recipes-7.x-1.x-dev -y
 # The data container will manage these config files if using kalabox.
 # Because we are awesome, we will not force these settings should some wish not to use kalabox.
 
-# php.ini
-RUN if [ -f src/config/php/php.ini ] && [ -f /etc/php5/fpm/php.ini ]; \
-	then \
-	rm /etc/php5/fpm/php.ini \
-    ln -s /src/config/php/php.ini /etc/php5/fpm/php.ini \
-    sed -i 's/;daemonize = yes/daemonize = no/g' /etc/php5/fpm/php-fpm.conf; \
-    fi
-# pool conf
-RUN if [ -f /src/config/php/www.conf ] && [ -f /etc/php5/fpm/pool.d/www.conf ]; \
-	then \
-	rm /etc/php5/fpm/pool.d/www.conf \
-	ln -s /src/config/php/www.conf /etc/php5/fpm/pool.d/www.conf; \
-	fi
-RUN if [ -f /src/config/php/20-apc.ini ] && [ -f /etc/php5/conf.d/20-apc.ini ]; \
-	then \
-	rm /etc/php5/conf.d/20-apc.ini \
-	ln -s /src/config/php/20-apc.ini /etc/php5/conf.d/20-apc.ini; \
-	fi	
-#20-xdebug.ini
-RUN if [ -f /src/config/php/20-xdebug.ini ] && [ -f /etc/php5/conf.d/20-xdebug.ini ]; \
-	then \
-	rm /etc/php5/conf.d/20-xdebug.ini \
-	ln -s /src/config/php/20-xdebug.ini /etc/php5/conf.d/20-xdebug.ini; \
-	fi
+# for f in /src/config/* /src/config/**/* ; do      
+#     ns=${f/\/src/config/}
+#    if [ -f "$ns" ] || [ -h "$ns" ];
+#        then
+#        rm "$ns" && ln -s "/src/config{$f}" "$ns";
+# done;
 
-# For compatibility with Apache. 
-# Again, we don't force these settings on those wishing to use other systems.
-# Create some sym-links to config files
+# Create a src directory for voluming with project root if it doesn't exist.
+RUN if [ ! -d /src ]; then mkdir /src; fi
 
-RUN if [ -f src/config/php/php.ini ] && [ -f /etc/php5/apache2/php.ini ]; \
-	then \
-	rm /etc/php5/apache2/php.ini \
-    ln -s /src/config/php/php.ini /etc/php5/apache2/php.ini \
-    sed -i 's/;daemonize = yes/daemonize = no/g' /etc/php5/fpm/php-fpm.conf; \
-    fi
-RUN if [ -f /src/config/apache2/sites-enabled/www.conf ] && [ -f /etc/apache2/sites-enabled/www.conf ]; \
-	then \
-    rm /etc/apache2/sites-enabled/www.conf \
-    ln -s /src/config/apache2/sites-enabled/www.conf /etc/apache2/sites-enabled/www.conf; \
-	fi
-RUN if [ -f /src/config/apache2/apache2.conf ] && [ -f /etc/apache2/apache2.conf ]; \
-	then \
-    rm /etc/apache2/apache2.conf \
-    ln -s /src/config/apache2/apache2.conf /etc/apache2/apache2.conf; \
-	fi
-RUN if [ -f /etc/apache2/sites-common/redirect ] && [ -f /src/config/apache2/redirect ]; \
-	then \
-    rm /etc/apache2/sites-common/redirect \
-    ln -s /src/config/apache2/redirect /etc/apache2/sites-common/redirect;\
-	fi
+# Create symbolic links for php config files
+COPY config /root/config
+RUN rsync -a /root/config/ /src/config && rm -rf /root/config
+RUN sh /src/config/php-symlinks.sh
 
-# And finally we configure settings in the event we're using nginx with Kalabox.
-RUN if [ -f /etc/nginx/nginx.conf ] && [ -f /src/config/nginx/nginx.conf ]; \
-	then \
-    rm /etc/nginx/nginx.conf \
-    ln -s /src/config/nginx/nginx.conf /etc/nginx/nginx.conf; \
-	fi
-RUN if [ -f /etc/nginx/nginx.conf ] && [ -f /src/config/nginx/nginx.conf ]; \
-	then \
-    rm /etc/nginx/sites-enabled/default \
-    ln -s /src/config/nginx/site.conf /etc/nginx/sites-enabled/default; \
-	fi
+# Create symbolic links for nginx config files
+RUN sh /src/config/nginx-symlinks.sh
+
+# Create symbolic links for apache config files
+RUN sh /src/config/apache-symlinks.sh
 
 # Add .htaccess file to site root
 COPY .htaccess /srv/www/siteroot/.htaccess
+
 # Add start script.
-COPY drupal-base-start.sh /root/drupal-base-start.sh
-RUN chmod 777 /root/drupal-base-start.sh
+RUN chmod -R 777 /src/config
 
 # Define default command.
 CMD sh /root/server-base-start.sh && \
-	sh /root/prod-server-base-start.sh && \
-	sh /root/varnish-start.sh & \
-	sh /root/drupal-base-start.sh && \
-	/sbin/my_init
+    sh /root/prod-server-base-start.sh && \
+    sh /root/varnish-start.sh & \
+    sh /src/config/drupal-base-start.sh && \
+    /sbin/my_init

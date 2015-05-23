@@ -38,11 +38,15 @@ else
     echo "Site not installed. Pulling latest drupal 7 ... ";
     cd /srv/www && drush dl drupal -y && mv /srv/www/drupal-7*/* /srv/www/siteroot
     cd /data
-    rm index.html && chown -R www-data:www-data /data;
-    # Use drush to install a default generic drupal site and database installation
+    if [ -f "index.html" ]; then rm index.html && chown -R www-data:www-data /data; fi
+    if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
+    # If no drupal installation, then use drush to install generic drupal site and database
+    if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
+    then
     drush si -y standard --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
-    chown -R www-data:www-data /data;
     installsite=true;
+    fi;
+    chown -R www-data:www-data /data;
 fi
 
 # Create files directory if it doesn't yet exist.
