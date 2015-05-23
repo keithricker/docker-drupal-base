@@ -36,7 +36,7 @@ if [ -f "/data/index.php" ];
     echo "Site already installed. Yay.";
 else
     echo "Site not installed. Pulling latest drupal 7 ... ";
-    cd /srv/www && drush dl drupal -y && mv /srv/www/drupal-7*/* /srv/www/siteroot
+    cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /srv/www/siteroot
     cd /data
     if [ -f "index.html" ]; then rm index.html && chown -R www-data:www-data /data; fi
     if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
@@ -98,9 +98,12 @@ if [ "$installmodules" = true ];
     cd /data
     drush dl admin_menu -y && drush_dl devel -y && drush dl simpletest -y
     drush en -y admin_menu simpletest
-    drush vset "admin_menu_tweak_modules" 1	
+    drush vset "admin_menu_tweak_modules" 1
     # set up varnish and memcached
     drush dl varnish memcache && drush en varnish -y memcache -y memcache_admin -y
+    # grab entity-related modules
+    drush dl eck -y inline_entity_form -y  ds -y entityconnect -y entityreference -y
+    drush en eck -y && drush en inline_entity_form -y && drush en ds -y && drush en entityconnect -y && drush en entityreference -y
     drush vset cache 1 && drush vset page_cache_maximum_age 3600 && drush vset varnish_version 3
     unset REBUILD;
 fi
