@@ -59,7 +59,7 @@ docker run -it --name drupalserver --link database:mysql -d -p 8080:80 -v $(pwd)
 
 ```
 
-Open a web browser on your host machine and point it to port 8080 to view your welcome page:
+Wait about 5 to 10 minutes for everything to download and install ... Open a web browser on your host machine and point it to port 8080 to view your welcome page:
 
 ```
 
