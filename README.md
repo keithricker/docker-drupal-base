@@ -55,11 +55,11 @@ In order for this to work with VM, your project will need to live somewhere with
 # From your project's directory, create a folder named "code" and run this script.
 # If you want to use an existing drupal project, then copy that code to the code folder first -- then import your database after it runs. (See "Accessing the Database" below)
 
-docker run -it --name drupalserver --link database:mysql -d -p 8080:80 -v $(pwd)/code:/srv/www/siteroot kricker/drupal-base:latest 2> /dev/null
+docker run -it --name drupalserver --link database:mysql -d -p 8080:80 -v $(pwd)/code:/srv/www/siteroot kricker/drupal-base:latest
 
 ```
 
-Open a web browser on your host machine and point it to port 8080 to view your welcome page:
+Wait about 5 to 10 minutes for everything to download and install ... Open a web browser on your host machine and point it to port 8080 to view your welcome page:
 
 ```
 
