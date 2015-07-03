@@ -98,11 +98,15 @@ if [ "$installmodules" = true ];
     cd /data
     drush dl admin_menu -y && drush dl devel -y && drush dl simpletest -y
     drush en -y simpletest
-    # set up varnish and memcached
+    # set up varnish and memcache
     drush dl varnish memcache && drush en varnish -y memcache -y memcache_admin -y
     # grab entity-related modules
-    drush dl eck -y inline_entity_form -y  ds -y entityconnect -y entityreference -y
-    drush en eck -y && drush en inline_entity_form -y && drush en ds -y && drush en entityconnect -y && drush en entityreference -y
+    drush dl eck -y inline_entity_form -y  ds -y entityconnect -y entityreference -y field_group -y
+    drush en eck -y && drush en inline_entity_form -y && drush en ds -y && drush en entityconnect -y && \
+    drush en entityreference -y && drush en field_group -y
+    drush dl backup_migrate -y && drush en backup_migrate -y; drush dl editablefields -7 && drush en editablefields -y &&\
+    drush dl conditional_fields -y && drush en conditional_fields -y && \
+    drush dl ds_extra_layouts -y && drush en ds_extra_layouts -y
     drush vset cache 1 && drush vset page_cache_maximum_age 3600 && drush vset varnish_version 3
     unset REBUILD;
 fi
