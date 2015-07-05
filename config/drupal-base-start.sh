@@ -42,7 +42,7 @@ else
     if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
     # If no drupal installation, then use drush to install generic drupal site and database
 fi
-
+cd /data
 if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
     then
     drush si -y spark --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
