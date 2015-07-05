@@ -123,4 +123,3 @@ https://github.com/kalabox/kalabox/wiki/Backdrop-Guide#user-content-import-your-
 
 Note: If you aren't tied down or restricted to use of Apache and/or Ubuntu server, then there really aren't any notable advantages to running this base image over Kalabox's stock App Server, so you should probably just go with theirs if at all possible. This is just another option for those who either prefer an Apache/Ubuntu setup, or who are locked in to it for whatever reason.
 
-
