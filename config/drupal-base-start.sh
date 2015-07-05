@@ -36,7 +36,8 @@ if [ -f "/data/index.php" ];
     echo "Site already installed. Yay.";
 else
     echo "Site not installed. Pulling latest drupal 7 ... ";
-    cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data && mv .htaccess /data/
+    mv /data/.htaccess /srv/www/
+    cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data && mv -f .htaccess /data/.htaccess
     if [ -f "/data/index.html" ]; then rm /data/index.html
     if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
 fi
