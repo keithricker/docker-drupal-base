@@ -67,10 +67,10 @@ if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ];
     then
     # Alter the settings.php file to point to the right IP address.
     sed "s/'host' => '.*'/'host' => '${mysqlip}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-    sed 's/"host" => ".*"/"host" => "${mysqlip}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed 's/"host" => ".*"/"host" => "${mysqlip}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php;
 fi
 
-if [ ! -v installsite ] && [ "$kbdbsettings" != "null" ];
+if [ "$installsite" != "" ] && [ "$kbdbsettings" != "null" ];
     then
     sed "s/'host' => '.*'/'host' => '${mysqlip}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
     sed 's/"host" => ".*"/"host" => "${mysqlip}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
@@ -90,7 +90,7 @@ fi
 
 varnishdir=/data/sites/all/modules/varnish
 installmodules=false
-if [ -v installsite ] || [ -v REBUILD ]; then installmodules=true; fi
+if [ "$installsite" != "" ] || [ "$REBUILD" != "" ]; then installmodules=true; fi
 if [ -d "$varnishdir" ]; then installmodules=false; fi
 
 if [ "$installmodules" = true ];
