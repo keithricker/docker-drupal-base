@@ -41,13 +41,15 @@ else
     if [ -f "index.html" ]; then rm index.html && chown -R www-data:www-data /data; fi
     if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
     # If no drupal installation, then use drush to install generic drupal site and database
-    if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
+fi
+
+if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
     then
     drush si -y spark --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
     installsite=true;
-    fi;
-    chown -R www-data:www-data /data;
-fi
+fi;
+
+chown -R www-data:www-data /data;
 
 # Create files directory if it doesn't yet exist.
 cd /data && filesdirectory=/data/sites/default/files
