@@ -41,6 +41,9 @@ RUN sh /src/config/apache-symlinks.sh
 
 # Add .htaccess file to site root
 COPY .htaccess /data/
+# Set the symbolic link from /data to siteroot
+RUN mda=/srv/www/siteroot;
+RUN if ! [ -L $mda ]; then ln -s /data /srv/www/siteroot; fi 
 
 # Add start script.
 RUN chmod -R 777 /src/config
