@@ -4,7 +4,7 @@
 echo "entering the start script ...."
 
 # First, we'll define our default db connection vars
-mysqlip=localhost && drupaldbname=mysite && drupaluname=root && drupalpwd="" && drupaldbport=3306
+mysqlip=localhost && drupaldbname=mysite && drupaluname=root && drupalpwd="" && drupaldbport=3306 && drupalprofile=spark
 if [ "${KB_APP_SETTINGS}" != "" ];
     then 
     apt-get install jq
@@ -31,14 +31,12 @@ if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then mysqlip="${MYSQL_PORT_3306_TCP_
 if [ "${MYSQL_USERNAME}" != "" ]; then drupaluname="${MYSQL_USERNAME}"; fi
 if [ "${DRUPAL_DB_USERNAME}" != "" ]; then drupaluname="${DRUPAL_DB_USERNAME}"; fi
 
-if [ "${DRUPAL_DB_PASSWORD}" != "" ]; 
-    then drupalpwd="${DRUPAL_DB_PASSWORD}";
-else 
-if [ "${MYSQL_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_PASSWORD}"; fi 
-else 
+if [ "${MYSQL_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_PASSWORD}"; fi;
 if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_ROOT_PASSWORD}"; fi;
+if [ "${DRUPAL_DB_PASSWORD}" != "" ]; then drupalpwd="${DRUPAL_DB_PASSWORD}"; fi;
 
-fi
+# Here you can pass in the git repository as an ev variable.
+if [ "${GIT_REPO}" != "" ]; then drupalprofile=minimal && gitrepo="${GIT_REPO}" fi;
 
 # Download Drupal if not already there
 indexfile="/data/index.php"
@@ -46,10 +44,18 @@ if [ -f "/data/index.php" ];
     then
     echo "Site already installed. Yay.";
 else
-    echo "Site not installed. Pulling latest drupal 7 ... ";
     mv /data/.htaccess /srv/www/
-    cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data && mv -f .htaccess /data/.htaccess
-    if [ -f "/data/index.html" ]; then rm /data/index.html
+    if [ "${gitrepo}" != "" ]; 
+    then echo "Site not installed. Pulling from repository ... ";
+        git clone $(echo ${gitrepo}) moveme;
+        mv /srv/www/moveme/* /data;
+    else
+        echo "Site not installed. Pulling latest drupal 7 ... ";
+        cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data;
+    fi
+
+    mv -f .htaccess /data/.htaccess;
+    if [ -f "/data/index.html" ]; then rm /data/index.html; fi
     if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
 fi
 
@@ -57,8 +63,8 @@ cd /data
 chown -R www-data:www-data /data; fi
 
 if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
-    then
-    drush si -y spark --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
+then
+    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
     installsite=true;
 fi;
 
