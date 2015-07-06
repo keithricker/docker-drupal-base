@@ -21,12 +21,23 @@ fi
 
 # If not using Kalabox, then we'll check for environment variables that may have been passed
 # or auto-set in the docker run command.
+
+# First check for cloud66 env variables
+if [ "${MYSQL_ADDRESS_EXT}" != "" ]; then mysqlip="${MYSQL_ADDRESS_EXT}"; fi
+if [ "${MYSQL_DATABASE}" != "" ]; then drupaldbname="${MYSQL_DATABASE};" fi
+
 if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then mysqlip="${MYSQL_PORT_3306_TCP_ADDR}"; fi
+
+if [ "${MYSQL_USERNAME}" != "" ]; then drupaluname="${MYSQL_USERNAME}"; fi
 if [ "${DRUPAL_DB_USERNAME}" != "" ]; then drupaluname="${DRUPAL_DB_USERNAME}"; fi
+
 if [ "${DRUPAL_DB_PASSWORD}" != "" ]; 
-    then drupalpwd="${DRUPAL_DB_PASSWORD}"; 
+    then drupalpwd="${DRUPAL_DB_PASSWORD}";
 else 
-if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_ROOT_PASSWORD}"; fi 
+if [ "${MYSQL_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_PASSWORD}"; fi 
+else 
+if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_ROOT_PASSWORD}"; fi;
+
 fi
 
 # Download Drupal if not already there
