@@ -24,7 +24,7 @@ fi
 
 # First check for cloud66 env variables
 if [ "${MYSQL_ADDRESS_EXT}" != "" ]; then mysqlip="${MYSQL_ADDRESS_EXT}"; fi
-if [ "${MYSQL_DATABASE}" != "" ]; then drupaldbname="${MYSQL_DATABASE};" fi
+if [ "${MYSQL_DATABASE}" != "" ]; then drupaldbname="${MYSQL_DATABASE}"; fi
 
 if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then mysqlip="${MYSQL_PORT_3306_TCP_ADDR}"; fi
 
@@ -36,7 +36,7 @@ if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_ROOT_PASSWORD}"; f
 if [ "${DRUPAL_DB_PASSWORD}" != "" ]; then drupalpwd="${DRUPAL_DB_PASSWORD}"; fi;
 
 # Here you can pass in the git repository as an ev variable.
-if [ "${GIT_REPO}" != "" ]; then drupalprofile=minimal && gitrepo="${GIT_REPO}"; fi;
+if [ "${GIT_REPO}" != "" ]; then echo "environment variable GIT_REPO equals ${GIT_REPO}" && drupalprofile=minimal && gitrepo="${GIT_REPO}"; fi;
 
 # Here you can pass in the site name as an ev variable.
 if [ "${DRUPAL_SITENAME}" != "" ]; then drupalsitename="${DRUPAL_SITENAME}"; fi;
@@ -48,26 +48,28 @@ if [ -f "/data/index.php" ];
     echo "Site already installed. Yay.";
 else
     mv /data/.htaccess /srv/www/
-    if [ "${gitrepo}" != "" ]; 
+    if [ "$gitrepo" != "" ]; 
     then echo "Site not installed. Pulling from repository ... ";
-        git clone $(echo ${gitrepo}) moveme;
-        mv /srv/www/moveme/* /data;
+        cd /srv/www && git clone $(echo ${gitrepo}) moveme
+        mv /srv/www/moveme/* /data/;
     else
         echo "Site not installed. Pulling latest drupal 7 ... ";
-        cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data;
+        cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data/;
     fi
 
-    mv -f .htaccess /data/.htaccess;
+    mv -f /srv/www/.htaccess /data/.htaccess;
     if [ -f "/data/index.html" ]; then rm /data/index.html; fi
-    if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
 fi
 
 cd /data
 chown -R www-data:www-data /data; fi
 
+if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
+echo "contacting mysql using credentials ... mysql -h ${mysqlip} -u ${drupaluname} -p ${pwd} ${drupaldbname} -e" && echo ""
 if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
 then
-    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name=$drupalsitename;
+    echo "connecting to database using these credentials ...  db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name=\"$(echo $drupalsitename)\""
+    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="$(echo $drupalsitename)";
     installsite=true;
 fi;
 
@@ -126,9 +128,9 @@ if [ "$installmodules" = true ];
     drush dl eck -y inline_entity_form -y  ds -y entityconnect -y entityreference -y field_group -y
     drush en eck -y && drush en inline_entity_form -y && drush en ds -y && drush en entityconnect -y && \
     drush en entityreference -y && drush en field_group -y
-    drush dl backup_migrate -y && drush en backup_migrate -y; drush dl editablefields -7 && drush en editablefields -y &&\
+    drush dl backup_migrate -y && drush en backup_migrate -y; drush dl editablefields -y && drush en editablefields -y &&\
     drush dl conditional_fields -y && drush en conditional_fields -y && \
     drush dl ds_extra_layouts -y && drush en ds_extra_layouts -y
-    drush vset cache 1 && drush vset page_cache_maximum_age 3600 && drush vset varnish_version 3
+    drush vset page_cache_maximum_age 3600 && drush vset varnish_version 3
     unset REBUILD;
 fi
