@@ -4,7 +4,7 @@
 echo "entering the start script ...."
 
 # First, we'll define our default db connection vars
-mysqlip=localhost && drupaldbname=mysite && drupaluname=root && drupalpwd="" && drupaldbport=3306 && drupalprofile=spark
+mysqlip=localhost && drupaldbname=mysite && drupaluname=root && drupalpwd="" && drupaldbport=3306 && drupalprofile=spark && drupalsitename="My Drupal 7 Site"
 if [ "${KB_APP_SETTINGS}" != "" ];
     then 
     apt-get install jq
@@ -36,7 +36,10 @@ if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_ROOT_PASSWORD}"; f
 if [ "${DRUPAL_DB_PASSWORD}" != "" ]; then drupalpwd="${DRUPAL_DB_PASSWORD}"; fi;
 
 # Here you can pass in the git repository as an ev variable.
-if [ "${GIT_REPO}" != "" ]; then drupalprofile=minimal && gitrepo="${GIT_REPO}" fi;
+if [ "${GIT_REPO}" != "" ]; then drupalprofile=minimal && gitrepo="${GIT_REPO}"; fi;
+
+# Here you can pass in the site name as an ev variable.
+if [ "${DRUPAL_SITENAME}" != "" ]; then drupalsitename="${DRUPAL_SITENAME}"; fi;
 
 # Download Drupal if not already there
 indexfile="/data/index.php"
@@ -64,7 +67,7 @@ chown -R www-data:www-data /data; fi
 
 if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
 then
-    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="Your Drupal7 Site"
+    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name=$drupalsitename;
     installsite=true;
 fi;
 
