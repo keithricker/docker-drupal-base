@@ -84,6 +84,16 @@ chmod a+w /data/sites/default -R
 # Configure settings.php, with contingency in case it is a symlink
 settingsfile=$(readlink -f /data/sites/default/settings.php);
 
+# Copy settings.php to all site directories
+for path in /data/sites/*; do
+    dirname="$(basename "${path}")"
+    [ -d "${path}" ] || continue # if not a directory, skip
+    [ "${dirname}" != "default" ] || continue
+    [ "${dirname}" != "all" ] || continue
+    [ ! -f /data/sites/${dirname}/settings.php ] || continue
+    cp ${settingsfile} /data/sites/${dirname}/;
+done
+
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
 
