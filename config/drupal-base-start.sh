@@ -51,13 +51,14 @@ else
     if [ "$gitrepo" != "" ]; 
     then echo "Site not installed. Pulling from repository ... ";
         cd /srv/www && git clone $(echo ${gitrepo}) moveme
-        mv /srv/www/moveme/* /data/;
+        mv /srv/www/moveme/* /data/
+        rm -r /srv/www/moveme;
     else
         echo "Site not installed. Pulling latest drupal 7 ... ";
         cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data/;
     fi
 
-    mv -f /srv/www/.htaccess /data/.htaccess;
+    mv -f /srv/www/.htaccess /data/;
     if [ -f "/data/index.html" ]; then rm /data/index.html; fi
 fi
 
