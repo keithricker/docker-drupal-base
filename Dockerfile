@@ -40,7 +40,7 @@ RUN sh /src/config/nginx-symlinks.sh
 RUN sh /src/config/apache-symlinks.sh
 
 # Add .htaccess file to site root
-COPY .htaccess /data/
+ADD .htaccess /data/.htaccess
 # Set the symbolic link from /data to siteroot
 RUN mda=/srv/www/siteroot; if ! [ -L $mda ]; then ln -s /data /srv/www/siteroot; fi 
 
