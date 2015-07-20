@@ -43,7 +43,7 @@ if [ "${DRUPAL_SITENAME}" != "" ]; then drupalsitename="${DRUPAL_SITENAME}"; fi;
 
 # Download Drupal if not already there
 indexfile="/data/index.php"
-if [ -f "/data/index.php" ];
+if [ -f "/data/index.php" ] && [ "$REBUILD" = "no" ];
     then
     echo "Site already installed. Yay.";
 else
@@ -51,6 +51,7 @@ else
     if [ "$gitrepo" != "" ]; 
     then echo "Site not installed. Pulling from repository ... ";
         cd /srv/www && git clone $(echo ${gitrepo}) moveme
+        rm -rfv /data/*
         mv /srv/www/moveme/* /data/
         rm -r /srv/www/moveme;
     else
