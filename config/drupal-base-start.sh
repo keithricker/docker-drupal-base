@@ -126,7 +126,7 @@ fi
 
 varnishdir=/data/sites/all/modules/varnish
 installmodules=false
-if [ "$installsite" != "" ] || [ "$REBUILD" != "" ]; then installmodules=true; fi
+if [ "$installsite" != "" ]; then installmodules=true; fi
 if [ -d "$varnishdir" ]; then installmodules=false; fi
 
 if [ "$installmodules" = true ];
