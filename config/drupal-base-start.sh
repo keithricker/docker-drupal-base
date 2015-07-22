@@ -4,36 +4,35 @@
 echo "entering the start script ...."
 
 # First, we'll define our default db connection vars
-mysqlip=localhost && drupaldbname=mysite && drupaluname=root && drupalpwd="" && drupaldbport=3306 && drupalprofile=spark && drupalsitename="My Drupal 7 Site"
+dbsettings[host]=localhost && dbsettings[database]=mysite && dbsettings[username]=root && dbsettings[password]="" && dbsettings[port]=3306 && drupalprofile=spark && drupalsitename="My Drupal 7 Site"
 if [ "${KB_APP_SETTINGS}" != "" ];
     then 
     apt-get install jq
     kbdbsettings=$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.database')
-if [ "${kbdbsettings}" != "null" ];
-    then
-    mysqlip=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.host') | tr -d '"');
-    drupaldbname=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.database') | tr -d '"');
-    drupaluname=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.username') | tr -d '"');
-    drupalpwd=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.password') | tr -d '"');
-    drupaldbport=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.port') | tr -d '"');
-fi;
+    if [ "${kbdbsettings}" != "null" ];
+        then
+        for i in "${!dbsettings[@]}";
+        do
+          dbsettings[$i]=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.'"$i"') | tr -d '"');
+        done
+    fi;
 fi
 
 # If not using Kalabox, then we'll check for environment variables that may have been passed
 # or auto-set in the docker run command.
 
 # First check for cloud66 env variables
-if [ "${MYSQL_ADDRESS_EXT}" != "" ]; then mysqlip="${MYSQL_ADDRESS_EXT}"; fi
-if [ "${MYSQL_DATABASE}" != "" ]; then drupaldbname="${MYSQL_DATABASE}"; fi
+if [ "${MYSQL_ADDRESS_EXT}" != "" ]; then dbsettings[host]="${MYSQL_ADDRESS_EXT}"; fi
+if [ "${MYSQL_DATABASE}" != "" ]; then dbsettings[database]="${MYSQL_DATABASE}"; fi
 
-if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then mysqlip="${MYSQL_PORT_3306_TCP_ADDR}"; fi
+if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then dbsettings[host]="${MYSQL_PORT_3306_TCP_ADDR}"; fi
 
-if [ "${MYSQL_USERNAME}" != "" ]; then drupaluname="${MYSQL_USERNAME}"; fi
-if [ "${DRUPAL_DB_USERNAME}" != "" ]; then drupaluname="${DRUPAL_DB_USERNAME}"; fi
+if [ "${MYSQL_USERNAME}" != "" ]; then dbsettings[username]="${MYSQL_USERNAME}"; fi
+if [ "${DRUPAL_DB_USERNAME}" != "" ]; then dbsettings[username]="${DRUPAL_DB_USERNAME}"; fi
 
-if [ "${MYSQL_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_PASSWORD}"; fi;
-if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then drupalpwd="${MYSQL_ROOT_PASSWORD}"; fi;
-if [ "${DRUPAL_DB_PASSWORD}" != "" ]; then drupalpwd="${DRUPAL_DB_PASSWORD}"; fi;
+if [ "${MYSQL_PASSWORD}" != "" ]; then dbsettings[password]="${MYSQL_PASSWORD}"; fi;
+if [ "${MYSQ_ROOT_PASSWORD}" != "" ]; then dbsettings[password]="${MYSQL_ROOT_PASSWORD}"; fi;
+if [ "${DRUPAL_DB_PASSWORD}" != "" ]; then dbsettings[password]="${DRUPAL_DB_PASSWORD}"; fi;
 
 # Here you can pass in the git repository as an ev variable.
 if [ "${GIT_REPO}" != "" ]; then echo "environment variable GIT_REPO equals ${GIT_REPO}" && drupalprofile=minimal && gitrepo="${GIT_REPO}"; fi;
@@ -69,12 +68,12 @@ fi
 cd /data
 chown -R www-data:www-data /data; fi
 
-if [ "$drupalpwd" = "" ]; then pwd=password; else pwd=$drupalpwd; fi;
-echo "contacting mysql using credentials ... mysql -h ${mysqlip} -u ${drupaluname} -p ${pwd} ${drupaldbname} -e" && echo ""
-if ! mysql -h${mysqlip} -u${drupaluname} -p${pwd} ${drupaldbname} -e 'select * from node';
+if [ "$dbsettings[password]" = "" ]; then pwd=password; else pwd=$dbsettings[password]; fi;
+echo "contacting mysql using credentials ... mysql -h ${dbsettings[host]} -u ${dbsettings[username]} -p ${dbsettings[password]} ${dbsettings[database]} -e" && echo ""
+if ! mysql -h${dbsettings[host]} -u${dbsettings[username]} -p${dbsettings[password]} ${dbsettings[username]} -e 'select * from node';
 then
-    echo "connecting to database using these credentials ...  db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name=\"$(echo $drupalsitename)\""
-    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${drupaluname}:${drupalpwd}@${mysqlip}/${drupaldbname} --account-pass=password --site-name="$(echo $drupalsitename)";
+    echo "connecting to database using these credentials ...  db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[username]} --account-pass=password --site-name=\"$(echo $drupalsitename)\""
+    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[database]} --account-pass=password --site-name="$(echo $drupalsitename)";
     installsite=true;
 fi;
 
@@ -102,29 +101,20 @@ done
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
 
-if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ];
+if [ "${dbsettings[host]}" != "" ];
     then
     # Alter the settings.php file to point to the right IP address.
-    sed "s/'host' => '.*'/'host' => '${mysqlip}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-    sed 's/"host" => ".*"/"host" => "${mysqlip}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php;
+    sed "s/'host' => '.*'/'host' => '${dbsettings[host]}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed 's/"host" => ".*"/"host" => "${dbsettings[host]}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php;
 fi
 
 if [ "$installsite" != "" ] && [ "$kbdbsettings" != "null" ];
     then
-    sed "s/'host' => '.*'/'host' => '${mysqlip}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-    sed 's/"host" => ".*"/"host" => "${mysqlip}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-
-    sed "s/'username' => '.*'/'username' => '${drupaluname}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-    sed 's/"username" => ".*"/"username" => "${drupaluname}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-
-    sed "s/'password' => '.*'/'password' => '${drupalpwd}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-    sed 's/"password" => ".*"/"password" => "${drupalpwd}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-
-    sed "s/'database' => '.*'/'database' => '${drupaldbname}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-    sed 's/"database" => ".*"/"database" => "${drupaldbname}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-
-    sed "s/'port' => '.*'/'port' => '${drupaldbport}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
-    sed 's/"port" => ".*"/"port" => "${drupaldbport}"/g' "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php;
+    for i in "${!dbsettings[@]}"
+    do
+      dbsettings[$i]=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.'"$i"') | tr -d '"');
+    done
+    sed "s/'${i}' => '.*'/'${i}' => '${dbsettings[$i]}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
 fi
 
 varnishdir=/data/sites/all/modules/varnish
@@ -135,17 +125,17 @@ if [ -d "$varnishdir" ]; then installmodules=false; fi
 if [ "$installmodules" = true ];
     then
     cd /data
+    # download and enable production-related modules
     drush dl admin_menu -y && drush dl devel -y && drush dl simpletest -y
     drush en -y simpletest
     # set up varnish and memcache
     drush dl varnish memcache && drush en varnish -y memcache -y memcache_admin -y
     # grab entity-related modules
-    drush dl eck -y inline_entity_form -y  ds -y entityconnect -y entityreference -y field_group -y
-    drush en eck -y && drush en inline_entity_form -y && drush en ds -y && drush en entityconnect -y && \
-    drush en entityreference -y && drush en field_group -y
-    drush dl backup_migrate -y && drush en backup_migrate -y; drush dl editablefields -y && drush en editablefields -y &&\
-    drush dl conditional_fields -y && drush en conditional_fields -y && \
-    drush dl ds_extra_layouts -y && drush en ds_extra_layouts -y
+    declare -a enablethese=(eck inline_entity_form ds entityconnect entityreference field_group backup_migrate editablefields conditional_fields ds_extra_layouts)
+    for module in $enablethese; do
+        drush dl ${module} -y && drush en ${module} -y;
+    done
+    # Set some variables
     drush vset page_cache_maximum_age 3600 && drush vset varnish_version 3
     unset REBUILD;
 fi
