@@ -4,6 +4,7 @@
 echo "entering the start script ...."
 
 # First, we'll define our default db connection vars
+unset dbsettings;
 declare -A dbsettings
 dbsettings[host]=localhost && dbsettings[database]=mysite && dbsettings[username]=root && dbsettings[password]="" && dbsettings[port]=3306 && drupalprofile=spark && drupalsitename="My Drupal 7 Site"
 if [ "${KB_APP_SETTINGS}" != "" ];
