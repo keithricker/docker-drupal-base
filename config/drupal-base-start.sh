@@ -70,11 +70,11 @@ cd /data
 chown -R www-data:www-data /data; fi
 
 if [ "$dbsettings[password]" = "" ]; then pwd=password; else pwd=$dbsettings[password]; fi;
-echo "contacting mysql using credentials ... mysql -h ${dbsettings[host]} -u ${dbsettings[username]} -p ${dbsettings[password]} ${dbsettings[database]} -e" && echo ""
-if ! mysql -h${dbsettings[host]} -u${dbsettings[username]} -p${dbsettings[password]} ${dbsettings[database]} -e 'select * from node';
+echo "contacting mysql using credentials ... mysql -h ${dbsettings[host]} -u ${dbsettings[username]} -p ${pwd} ${dbsettings[database]} -e" && echo ""
+if ! mysql -h${dbsettings[host]} -u${dbsettings[username]} -p${pwd} ${dbsettings[database]} -e 'select * from node';
 then
-    echo "connecting to database using these credentials ...  db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[username]} --account-pass=password --site-name=\"$(echo $drupalsitename)\""
-    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[database]} --account-pass=password --site-name="$(echo $drupalsitename)";
+    echo "connecting to database using these credentials ...  db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[username]} --account-pass=${pwd} --site-name=\"$(echo $drupalsitename)\""
+    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[database]} --account-pass=${pwd} --site-name="$(echo $drupalsitename)";
     installsite=true;
 fi;
 
