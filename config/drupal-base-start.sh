@@ -61,7 +61,7 @@ else
         cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data/;
     fi
     
-    mv -f /root/config/.htaccess /data/;
+    mv -f /src/config/.htaccess /data/;
     if [ -f "/data/index.html" ]; then rm /data/index.html; fi
 fi
 
