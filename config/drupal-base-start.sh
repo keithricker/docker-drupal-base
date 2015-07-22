@@ -11,9 +11,8 @@ if [ "${KB_APP_SETTINGS}" != "" ];
     kbdbsettings=$(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.database')
     if [ "${kbdbsettings}" != "null" ];
         then
-        for i in "${!dbsettings[@]}";
-        do
-          dbsettings[$i]=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.'"$i"') | tr -d '"');
+        for i in "${!dbsettings[@]}"; do
+          dbsettings[$i]=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.'"${i}"'') | tr -d '"');
         done;
     fi;
 fi
