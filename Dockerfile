@@ -31,6 +31,7 @@ RUN if [ ! -d /src ]; then mkdir /src; fi
 # Create symbolic links for php config files
 COPY config /root/config
 RUN rsync -a /root/config/ /src/config && rm -rf /root/config
+RUN chmod -R 777 /src
 RUN sh /src/config/php-symlinks.sh
 
 # Create symbolic links for nginx config files
