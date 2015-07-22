@@ -43,11 +43,14 @@ if [ "${DRUPAL_SITENAME}" != "" ]; then drupalsitename="${DRUPAL_SITENAME}"; fi;
 
 # Download Drupal if not already there
 indexfile="/data/index.php"
+
+# Check if this is a first-time install
+if [ -f "/data/index.php" ]; nocode=true
+
 if [ -f "/data/index.php" ] && [ "$REBUILD" = "no" ];
     then
     echo "Site already installed. Yay.";
 else
-    mv /data/.htaccess /srv/www/
     if [ "$gitrepo" != "" ]; 
     then echo "Site not installed. Pulling from repository ... ";
         cd /srv/www && git clone $(echo ${gitrepo}) moveme
@@ -58,8 +61,8 @@ else
         echo "Site not installed. Pulling latest drupal 7 ... ";
         cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data/;
     fi
-
-    mv -f /srv/www/.htaccess /data/;
+    
+    mv -f /root/config/.htaccess /data/;
     if [ -f "/data/index.html" ]; then rm /data/index.html; fi
 fi
 
@@ -126,7 +129,7 @@ fi
 
 varnishdir=/data/sites/all/modules/varnish
 installmodules=false
-if [ "$installsite" != "" ]; then installmodules=true; fi
+if [ "$installsite" != "" ] && [ "$nocode" != "" ]; then installmodules=true; fi
 if [ -d "$varnishdir" ]; then installmodules=false; fi
 
 if [ "$installmodules" = true ];
