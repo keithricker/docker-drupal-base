@@ -43,7 +43,7 @@ if [ "${DRUPAL_SITENAME}" != "" ]; then drupalsitename="${DRUPAL_SITENAME}"; fi;
 indexfile="/data/index.php"
 
 # Check if this is a first-time install
-if [ -f "/data/index.php" ]; nocode=true
+if [ -f "/data/index.php" ]; then nocode=true; fi;
 
 if [ -f "/data/index.php" ] && [ "$REBUILD" = "no" ];
     then
