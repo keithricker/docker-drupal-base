@@ -14,7 +14,7 @@ if [ "${KB_APP_SETTINGS}" != "" ];
         for i in "${!dbsettings[@]}";
         do
           dbsettings[$i]=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.'"$i"') | tr -d '"');
-        done
+        done;
     fi;
 fi
 
@@ -110,11 +110,11 @@ fi
 
 if [ "$installsite" != "" ] && [ "$kbdbsettings" != "null" ];
     then
-    for i in "${!dbsettings[@]}"
+    for i in "${!dbsettings[@]}";
     do
       dbsettings[$i]=$(echo $(echo "${KB_APP_SETTINGS}" | jq '.databases.default.default.'"$i"') | tr -d '"');
     done
-    sed "s/'${i}' => '.*'/'${i}' => '${dbsettings[$i]}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php
+    sed "s/'${i}' => '.*'/'${i}' => '${dbsettings[$i]}'/g" "$settingsfile" > ~/deleteme.php  &&  cp ~/deleteme.php "$settingsfile" && rm ~/deleteme.php;
 fi
 
 varnishdir=/data/sites/all/modules/varnish
