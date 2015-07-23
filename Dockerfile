@@ -53,5 +53,5 @@ RUN chmod -R 777 /src/config
 CMD sh /root/server-base-start.sh && \
     sh /root/prod-server-base-start.sh && \
     sh /root/varnish-start.sh & \
-    sh /src/config/drupal-base-start.sh && \
+    ./src/config/drupal-base-start.sh && \
     /sbin/my_init
