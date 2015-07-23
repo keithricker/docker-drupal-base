@@ -67,7 +67,7 @@ else
 fi
 
 cd /data
-chown -R www-data:www-data /data; fi
+chown -R www-data:www-data /data;
 
 if [ "$dbsettings[password]" = "" ]; then pwd=password; else pwd=$dbsettings[password]; fi;
 echo "contacting mysql using credentials ... mysql -h ${dbsettings[host]} -u ${dbsettings[username]} -p ${pwd} ${dbsettings[database]} -e" && echo ""
