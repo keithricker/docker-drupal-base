@@ -6,7 +6,7 @@ echo "entering the start script ...."
 # First, we'll define our default db connection vars
 unset dbsettings;
 declare -A dbsettings
-dbsettings[host]=localhost && dbsettings[database]=mysite && dbsettings[username]=root && dbsettings[password]="" && dbsettings[port]=3306 && drupalprofile=spark && drupalsitename="My Drupal 7 Site"
+dbsettings[host]=localhost && dbsettings[database]=mysite && dbsettings[username]=root && dbsettings[password]="" && dbsettings[port]=3306 && drupalprofile=spark && drupalsitename="My Drupal 7 Site" && drupalusername=admin && drupalpassword=password
 if [ "${KB_APP_SETTINGS}" != "" ];
     then 
     apt-get install jq
@@ -69,35 +69,43 @@ fi
 cd /data
 chown -R www-data:www-data /data;
 
+# Install the site(s)
 if [ "$dbsettings[password]" = "" ]; then pwd=password; else pwd=$dbsettings[password]; fi;
-echo "contacting mysql using credentials ... mysql -h ${dbsettings[host]} -u ${dbsettings[username]} -p ${pwd} ${dbsettings[database]} -e" && echo ""
-if ! mysql -h${dbsettings[host]} -u${dbsettings[username]} -p${pwd} ${dbsettings[database]} -e 'select * from node';
-then
-    echo "connecting to database using these credentials ...  db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[username]} --account-pass=${pwd} --site-name=\"$(echo $drupalsitename)\""
-    drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[database]} --account-pass=${pwd} --site-name="$(echo $drupalsitename)";
-    installsite=true;
-fi;
+# Set the default settings.php, with contingency in case it is a symlink
+settingsfile=$(readlink -f /data/sites/default/settings.php);
+cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data;
+for path in /data/sites/*; do
+    dirname="$(basename "${path}")"
+    [ -d "${path}" ] || continue # if not a directory, skip
+    [ "${dirname}" != "all" ] || continue # if we're in sites/all, then skip
+    [ -f /data/sites/${dirname}/settings.php ] || cp ${settingsfile} /data/sites/${dirname}/ && continue; # if not settings.php file then copy one over.
+    
+    # if we're not in sites/default, but sites/default has configured settings and it's the same as this one, then skip
+    dsqct=$(cd /data/sites/${dirname} && drush sql-connect) && cd /data
+    if [ "${dirname}" != "default" ] && [ "${dsqcdf}" != "" ] && [ "${dsqct}" = "${dsqcdf}" ]; then continue; fi;
+    
+    # Finally install the site if it isn't already
+    if ! drush pm-info node --fields=status ; 
+      then
+        echo "Site not installed";
+        if drush sql-connect ; 
+          then
+            echo "Settings file is configured. Installing site.";
+            drush si -y $(echo "${drupalprofile}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
+          else
+            echo "Settings file not configured. Connecting to database using these credentials ...  db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[username]} --account-pass=${pwd} --site-name=\"$(echo $drupalsitename)\""
+            drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[database]}--account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
+        fi
+        installsite=true;
+    fi    
+done
 
 # Create files directory if it doesn't yet exist.
 cd /data && filesdirectory=/data/sites/default/files
-
 if [ ! -d "$filesdirectory" ]; then
   mkdir -p /data/sites/default/files;
 fi
 chmod a+w /data/sites/default -R
-
-# Configure settings.php, with contingency in case it is a symlink
-settingsfile=$(readlink -f /data/sites/default/settings.php);
-
-# Copy settings.php to all site directories
-for path in /data/sites/*; do
-    dirname="$(basename "${path}")"
-    [ -d "${path}" ] || continue # if not a directory, skip
-    [ "${dirname}" != "default" ] || continue
-    [ "${dirname}" != "all" ] || continue
-    [ ! -f /data/sites/${dirname}/settings.php ] || continue
-    cp ${settingsfile} /data/sites/${dirname}/;
-done
 
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
