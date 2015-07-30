@@ -6,7 +6,7 @@ echo "entering the start script ...."
 # First, we'll define our default db connection vars
 unset dbsettings;
 declare -A dbsettings
-dbsettings[host]=localhost && dbsettings[database]=mysite && dbsettings[username]=root && dbsettings[password]="" && dbsettings[port]=3306 && drupalprofile=spark && drupalsitename="My Drupal 7 Site" && drupalusername=admin && drupalpassword=password
+dbsettings[host]=localhost && dbsettings[database]=mysite && dbsettings[username]=root && dbsettings[password]="" && dbsettings[port]=3306 && drupalprofile=minimal && drupalsitename="My Drupal 7 Site" && drupalusername=admin && drupalpassword=password
 if [ "${KB_APP_SETTINGS}" != "" ];
     then 
     apt-get install jq
@@ -60,7 +60,8 @@ else
         rm -r /srv/www/moveme;
     else
         echo "Site not installed. Pulling latest drupal 7 ... ";
-        cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data/;
+        cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data/
+        drupalprofile=spark;
     fi
     
     mv -f /root/.htaccess /data/ || true;
@@ -71,11 +72,12 @@ cd /data
 chown -R www-data:www-data /data;
 
 # Install the site(s)
-if [ "$dbsettings[password]" = "" ]; then pwd=password; else pwd=$dbsettings[password]; fi;
-# Set the default settings.php, with contingency in case it is a symlink
-settingsfile=$(readlink -f /data/sites/default/settings.php);
-cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data || cd /data && true;
-for path in /data/sites/*; do
+
+# If no settings file is present, and we pulled a fresh distro, then install and skip the other stuff below
+settingsfile=$(readlink -f /data/sites/default/settings.php) || settingsfile=""
+[ "$settingsfile" = "" ] || cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data || cd /data && true;
+[ "$settingsfile" != "" ] || drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
+[ "$settingsfile" = "" ] || for path in /data/sites/*; do
     dirname="$(basename "${path}")"
     [ -d "${path}" ] || continue
     [ "${dirname}" != "all" ] || continue
@@ -99,7 +101,7 @@ for path in /data/sites/*; do
             drush si -y $(echo "${drupalprofile}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
         else
             echo "Settings file not configured. Connecting to database ..."
-            drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
+            drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
         fi;
         installsite=true;
     fi; 
@@ -115,6 +117,7 @@ chmod a+w /data/sites/default -R
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
 
+[ "$settingsfile" != "" ] || settingsfile=/data/sites/default/settings.php
 if [ "${dbsettings[host]}" != "" ];
     then
     # Alter the settings.php file to point to the right IP address.
