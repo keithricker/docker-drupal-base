@@ -76,12 +76,12 @@ settingsfile=$(readlink -f /data/sites/default/settings.php);
 cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data || cd /data && true;
 for path in /data/sites/*; do
     dirname="$(basename "${path}")"
-    cd /data/sites/${dirname}
     [ -d "${path}" ] || continue # if not a directory, skip
     [ "${dirname}" != "all" ] || continue # if we're in sites/all, then skip
     [ -f /data/sites/${dirname}/settings.php ] || cp ${settingsfile} /data/sites/${dirname}/ && continue; # if not settings.php file then copy one over.
     
     # if we're not in sites/default, but sites/default has configured settings and it's the same as this one, then skip
+    cd /data/sites/${dirname}
     dsqct=$(drush sql-connect) || dsqct="" && true
     if [ "${dirname}" != "default" ] && [ "${dsqcdf}" != "" ] && [ "${dsqct}" = "${dsqcdf}" ]; then continue; fi;
     
