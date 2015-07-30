@@ -55,6 +55,7 @@ else
     then echo "Site not installed. Pulling from repository ... ";
         cd /srv/www && git clone $(echo ${gitrepo}) moveme
         rm -rfv /data/*
+        mv /srv/www/moveme/.* /data/
         mv /srv/www/moveme/* /data/
         rm -r /srv/www/moveme;
     else
@@ -62,9 +63,9 @@ else
         cd /srv/www && drush dl spark -y && mv /srv/www/spark-7*/* /data/;
     fi
     
-    mv -f /root/.htaccess /data/;
+    mv -f /root/.htaccess /data/ || true;
     if [ -f "/data/index.html" ]; then rm /data/index.html; fi
-fi
+fi;
 
 cd /data
 chown -R www-data:www-data /data;
@@ -76,9 +77,10 @@ settingsfile=$(readlink -f /data/sites/default/settings.php);
 cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data || cd /data && true;
 for path in /data/sites/*; do
     dirname="$(basename "${path}")"
-    [ -d "${path}" ] || continue # if not a directory, skip
-    [ "${dirname}" != "all" ] || continue # if we're in sites/all, then skip
-    [ -f /data/sites/${dirname}/settings.php ] || cp ${settingsfile} /data/sites/${dirname}/ && continue; # if not settings.php file then copy one over.
+    [ -d "${path}" ] || continue
+    [ "${dirname}" != "all" ] || continue
+    [ -f /data/sites/${dirname}/settings.php ] || cp ${settingsfile} /data/sites/${dirname}/
+    [ -f /data/sites/${dirname}/settings.php ] || continue
     
     # if we're not in sites/default, but sites/default has configured settings and it's the same as this one, then skip
     cd /data/sites/${dirname}
@@ -98,9 +100,9 @@ for path in /data/sites/*; do
         else
             echo "Settings file not configured. Connecting to database ..."
             drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
-        fi
+        fi;
         installsite=true;
-    fi 
+    fi; 
 done
 
 # Create files directory if it doesn't yet exist.
