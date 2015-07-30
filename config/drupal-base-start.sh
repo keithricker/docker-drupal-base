@@ -87,20 +87,20 @@ for path in /data/sites/*; do
     
     # Finally install the site if it isn't already
     drush pm-info node --fields=status || nonodetable=correct && true;
-    if [ "$nonodetable" = "correct" ] ; 
-      then
-        echo "Site not installed";
+    if [ "$nonodetable" = "correct" ]; 
+    then
+        echo "Site not installed"
         drush sql-connect || drushsqlconnection=nada && true;
         if [ "$drushsqlconnection" != "nada" ]; 
-          then
-            echo "Settings file is configured. Installing site.";
+        then
+            echo "Settings file is configured. Installing site."
             drush si -y $(echo "${drupalprofile}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
-          else
-            echo "Settings file not configured. Connecting to database using these credentials ...  db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[username]} --account-pass=${pwd} --site-name=\"$(echo $drupalsitename)\""
+        else
+            echo "Settings file not configured. Connecting to database ..."
             drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
         fi
         installsite=true;
-    fi    
+    fi 
 done
 
 # Create files directory if it doesn't yet exist.
