@@ -73,28 +73,31 @@ chown -R www-data:www-data /data;
 if [ "$dbsettings[password]" = "" ]; then pwd=password; else pwd=$dbsettings[password]; fi;
 # Set the default settings.php, with contingency in case it is a symlink
 settingsfile=$(readlink -f /data/sites/default/settings.php);
-cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data;
+cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data || cd /data && true;
 for path in /data/sites/*; do
     dirname="$(basename "${path}")"
+    cd /data/sites/${dirname}
     [ -d "${path}" ] || continue # if not a directory, skip
     [ "${dirname}" != "all" ] || continue # if we're in sites/all, then skip
     [ -f /data/sites/${dirname}/settings.php ] || cp ${settingsfile} /data/sites/${dirname}/ && continue; # if not settings.php file then copy one over.
     
     # if we're not in sites/default, but sites/default has configured settings and it's the same as this one, then skip
-    dsqct=$(cd /data/sites/${dirname} && drush sql-connect) && cd /data
+    dsqct=$(drush sql-connect) || dsqct="" && true
     if [ "${dirname}" != "default" ] && [ "${dsqcdf}" != "" ] && [ "${dsqct}" = "${dsqcdf}" ]; then continue; fi;
     
     # Finally install the site if it isn't already
-    if ! drush pm-info node --fields=status ; 
+    drush pm-info node --fields=status || nonodetable=correct && true;
+    if [ "$nonodetable" = "correct" ] ; 
       then
         echo "Site not installed";
-        if drush sql-connect ; 
+        drush sql-connect || drushsqlconnection=nada && true;
+        if [ "$drushsqlconnection" != "nada" ]; 
           then
             echo "Settings file is configured. Installing site.";
             drush si -y $(echo "${drupalprofile}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
           else
             echo "Settings file not configured. Connecting to database using these credentials ...  db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[username]} --account-pass=${pwd} --site-name=\"$(echo $drupalsitename)\""
-            drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[database]}--account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
+            drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${pwd}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
         fi
         installsite=true;
     fi    
