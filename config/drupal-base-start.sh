@@ -74,8 +74,8 @@ chown -R www-data:www-data /data;
 # Install the site(s)
 
 # If no settings file is present, and we pulled a fresh distro, then install and skip the other stuff below
-settingsfile=$(readlink -f /data/sites/default/settings.php) || settingsfile=""
-[ "$settingsfile" = "" ] || cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data || cd /data && true;
+settingsfile=$(readlink -f /data/sites/default/settings.php) && if [ ! -f "$settingsfile" ]; then settingsfile=""; fi
+if [ "$settingsfile" != "" ]; then cd /data/sites/default && if drush sql-connect ; then dsqcdf=$(drush sql-connect); fi && cd /data || cd /data && true; fi
 [ "$settingsfile" != "" ] || drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
 [ "$settingsfile" = "" ] || for path in /data/sites/*; do
     dirname="$(basename "${path}")"
