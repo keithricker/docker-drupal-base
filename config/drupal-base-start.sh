@@ -51,10 +51,11 @@ if [ -f "/data/index.php" ] && [ "$REBUILD" = "no" ];
     then
     echo "Site already installed. Yay.";
 else
-    rm -rfv /data/*
+    cd /data && rm -rf * && cd /srv/www
     if [ "$gitrepo" != "" ]; 
-    then echo "Site not installed. Pulling from repository ... ";
-        cd /srv/www && git clone $(echo ${gitrepo}) moveme
+    then 
+        echo "Site not installed. Pulling from repository ... "
+        git clone $(echo ${gitrepo}) moveme
         mv /srv/www/moveme/.* /data/
         mv /srv/www/moveme/* /data/
         rm -r /srv/www/moveme;
