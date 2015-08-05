@@ -26,8 +26,15 @@ fi
 if [ "${MYSQL_ADDRESS_EXT}" != "" ]; then dbsettings[host]="${MYSQL_ADDRESS_EXT}"; fi
 if [ "${MYSQL_DATABASE}" != "" ]; then dbsettings[database]="${MYSQL_DATABASE}"; fi
 
-if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then dbsettings[host]="${MYSQL_PORT_3306_TCP_ADDR}"; fi
-if [ "$(curl ipecho.net/plain)" != "" ]; then dbsettings[host]="$(curl ipecho.net/plain)"; fi
+if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; 
+    then 
+        dbsettings[host]="${MYSQL_PORT_3306_TCP_ADDR}";
+    else 
+        if [ "$(curl ipecho.net/plain)" != "" ]; 
+            then dbsettings[host]="$(curl ipecho.net/plain)";
+        fi
+fi
+
 if [ "${MYSQL_ENV_TUTUM_SERVICE_FQDN}" != "" ]; then dbsettings[host]="${MYSQL_ENV_TUTUM_SERVICE_FQDN}"; fi
 
 if [ "${MYSQL_USERNAME}" != "" ]; then dbsettings[username]="${MYSQL_USERNAME}"; fi
