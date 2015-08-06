@@ -63,6 +63,7 @@ else
     if [ "$gitrepo" != "" ]; 
     then 
         echo "Site not installed. Pulling from repository ... "
+        git config --global --unset https.proxy && git config --global --unset http.proxy
         git clone $(echo ${gitrepo}) moveme
         mv /srv/www/moveme/.* /data/
         mv /srv/www/moveme/* /data/
