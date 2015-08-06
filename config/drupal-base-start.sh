@@ -38,8 +38,8 @@ if [ "${MYSQL_ENV_TUTUM_SERVICE_FQDN}" != "" ];
     then 
         dbsettings[host]="${MYSQL_ENV_TUTUM_SERVICE_FQDN}"
         MYSQL_PORT_3306_TCP_ADDR="${MYSQL_ENV_TUTUM_SERVICE_FQDN}"
-        MYSQL2_PORT_3306_TCP_ADDR="${MYSQL_ENV_TUTUM_SERVICE_FQDN}";
 fi
+if [ "${MYSQL2_ENV_TUTUM_SERVICE_FQDN}" != "" ]; then MYSQL2_PORT_3306_TCP_ADDR="${MYSQL2_ENV_TUTUM_SERVICE_FQDN}"; fi
 
 if [ "${MYSQL_USERNAME}" != "" ]; then dbsettings[username]="${MYSQL_USERNAME}"; fi
 if [ "${DRUPAL_DB_USERNAME}" != "" ]; then dbsettings[username]="${DRUPAL_DB_USERNAME}"; fi
