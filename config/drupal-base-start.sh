@@ -166,7 +166,7 @@ if [ "$installmodules" = true ];
     # set up varnish and memcache
     drush dl varnish memcache && drush en varnish -y memcache -y memcache_admin -y
     # grab entity-related modules
-    declare -a enablethese=(eck inline_entity_form ds entityconnect entityreference field_group backup_migrate editablefields conditional_fields ds_extra_layouts)
+    declare -a enablethese=(backup_migrate eck inline_entity_form ds entityconnect entityreference field_group backup_migrate editablefields conditional_fields ds_extra_layouts)
     for module in $enablethese; do
         drush dl ${module} -y && drush en ${module} -y;
     done
