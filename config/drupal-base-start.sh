@@ -28,7 +28,7 @@ if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ];
         dbsettings[host]="${MYSQL_PORT_3306_TCP_ADDR}";
     else 
         if [ "$(curl ipecho.net/plain)" != "" ]; 
-            then dbsettings[host]="$(curl ipecho.net/plain)" && MYSQL_PORT_3306_TCP_ADDR="$(curl ipecho.net/plain)";
+            then dbsettings[host]="$(curl ipecho.net/plain)" && export MYSQL_PORT_3306_TCP_ADDR="$(curl ipecho.net/plain)";
         fi
 fi
 if [ "${MYSQL_ADDRESS_EXT}" != "" ]; then dbsettings[host]="${MYSQL_ADDRESS_EXT}"; fi
@@ -36,10 +36,12 @@ if [ "${MYSQL_DATABASE}" != "" ]; then dbsettings[database]="${MYSQL_DATABASE}";
 
 if [ "${MYSQL_ENV_TUTUM_SERVICE_FQDN}" != "" ]; 
     then 
+        echo "re-setting environment variable MYSQL_PORT_3306_TCP_ADDR from ${MYSQL_PORT_3306_TCP_ADDR} ..."
         dbsettings[host]="${MYSQL_ENV_TUTUM_SERVICE_FQDN}"
-        MYSQL_PORT_3306_TCP_ADDR="${MYSQL_ENV_TUTUM_SERVICE_FQDN}"
+        export MYSQL_PORT_3306_TCP_ADDR="${MYSQL_ENV_TUTUM_SERVICE_FQDN}"
+        echo "to: ${MYSQL_PORT_3306_TCP_ADDR}";
 fi
-if [ "${MYSQL2_ENV_TUTUM_SERVICE_FQDN}" != "" ]; then MYSQL2_PORT_3306_TCP_ADDR="${MYSQL2_ENV_TUTUM_SERVICE_FQDN}"; fi
+if [ "${MYSQL2_ENV_TUTUM_SERVICE_FQDN}" != "" ]; then export MYSQL2_PORT_3306_TCP_ADDR="${MYSQL2_ENV_TUTUM_SERVICE_FQDN}"; fi
 
 if [ "${MYSQL_USERNAME}" != "" ]; then dbsettings[username]="${MYSQL_USERNAME}"; fi
 if [ "${DRUPAL_DB_USERNAME}" != "" ]; then dbsettings[username]="${DRUPAL_DB_USERNAME}"; fi
