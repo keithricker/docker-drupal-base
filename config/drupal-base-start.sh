@@ -23,14 +23,7 @@ fi
 # or auto-set in the docker run command.
 
 # First check for cloud66 env variables
-if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; 
-    then 
-        dbsettings[host]="${MYSQL_PORT_3306_TCP_ADDR}";
-    else 
-        if [ "$(curl ipecho.net/plain)" != "" ]; 
-            then dbsettings[host]="$(curl ipecho.net/plain)" && export MYSQL_PORT_3306_TCP_ADDR="$(curl ipecho.net/plain)";
-        fi
-fi
+if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then dbsettings[host]="${MYSQL_PORT_3306_TCP_ADDR}"; fi
 if [ "${MYSQL_ADDRESS_EXT}" != "" ]; then dbsettings[host]="${MYSQL_ADDRESS_EXT}"; fi
 if [ "${MYSQL_DATABASE}" != "" ]; then dbsettings[database]="${MYSQL_DATABASE}"; fi
 
