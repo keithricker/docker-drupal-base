@@ -25,7 +25,7 @@ fi
 # First check for cloud66 env variables
 if [ "${MYSQL_PORT_3306_TCP_ADDR}" != "" ]; then dbsettings[host]="${MYSQL_PORT_3306_TCP_ADDR}"; fi
 if [ "${MYSQL_ADDRESS_EXT}" != "" ]; then dbsettings[host]="${MYSQL_ADDRESS_EXT}"; fi
-if [ "${MYSQL_ENV_TUTUM_SERVICE_FQDN}" != "" ]; then dbsettings[host]="${MYSQL_ENV_TUTUM_SERVICE_FQDN}"; fi
+if [ "${MYSQL_ENV_TUTUM_CONTAINER_FQDN}" != "" ]; then dbsettings[host]="${MYSQL_ENV_TUTUM_CONTAINER_FQDN}"; fi
 
 if [ "${MYSQL_PORT_3306_TCP_PORT}" != "" ]; then dbsettings[port]="${MYSQL_PORT_3306_TCP_PORT}"; fi
 if [ "${MYSQL_DATABASE}" != "" ]; then dbsettings[database]="${MYSQL_DATABASE}"; fi
