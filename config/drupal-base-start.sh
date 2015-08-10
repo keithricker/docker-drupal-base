@@ -103,8 +103,10 @@ if [ "$settingsfile" != "" ]; then cd /data/sites/default && if drush sql-connec
         then
             echo "Settings file is configured. Installing site."
             dburl=$(php -r 'include "settings.php"; if (!empty($databases)) { $tdb=$databases["default"]["default"]; echo "--db-url=mysql://".$tdb["username"].":".$tdb["password"]."@".$tdb["host"].":".$tdb["port"]."/".$tdb["database"]; };')
+            syncurl=$(php -r 'include "settings.php"; if (!empty($syncurl)) { echo $syncurl; }')
             drush sql-create -y $(echo "${dburl}") || true
             drush si -y $(echo "${drupalprofile}") $(echo "${dburl}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
+            if [ "$syncurl" != "" ]; then drush sql-sync --source-db-url=${syncurl}; fi
         else
             echo "Settings file not configured. Connecting to database ..."
             drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
