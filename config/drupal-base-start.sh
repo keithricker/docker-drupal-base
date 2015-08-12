@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Run the parent start script if there is one.
+# If there is a private key defined in the env vars, then add it.
 echo "entering the start script ...."
+if [ "${PRIVATE_KEY_CONTENTS}" != "" ]; then
+    echo "${PRIVATE_KEY_CONTENTS}" > ~/.ssh/${PRIVATE_KEY_FILE};
+fi
 
 # First, we'll define our default db connection vars
 unset dbsettings;
