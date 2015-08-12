@@ -5,7 +5,7 @@ echo "entering the start script ...."
 if [ "${PRIVATE_KEY_CONTENTS}" != "" ]; then
     echo "${PRIVATE_KEY_CONTENTS}" > ~/.ssh/${PRIVATE_KEY_FILE}
     sed -i 's/\\n/\
-    /g' ~/.ssh/${PRIVATE_KEY_FILE}
+/g' ~/.ssh/${PRIVATE_KEY_FILE}
     chmod 600  ~/.ssh/${PRIVATE_KEY_FILE}
     sed -i \
         -e 's/^#*\(PermitRootLogin\) .*/\1 yes/' \
