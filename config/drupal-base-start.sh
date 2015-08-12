@@ -5,8 +5,12 @@ echo "entering the start script ...."
 if [ "${PRIVATE_KEY_CONTENTS}" != "" ]; then
     echo "${PRIVATE_KEY_CONTENTS}" > ~/.ssh/${PRIVATE_KEY_FILE}
     chmod 600  ~/.ssh/${PRIVATE_KEY_FILE}
-    sed -i -- "s/^#PasswordAuthentication no/PasswordAuthentication no/g" /etc/ssh/sshd_config
-    sed -i -- "s/^#UsePAM yes/UsePAM no/g" /etc/ssh/sshd_config
+    sed -i \
+        -e 's/^#*\(PermitRootLogin\) .*/\1 yes/' \
+        -e 's/^#*\(PasswordAuthentication\) .*/\1 yes/' \
+        -e 's/^#*\(PermitEmptyPasswords\) .*/\1 yes/' \
+        -e 's/^#*\(UsePAM\) .*/\1 no/' \
+        /etc/ssh/sshd_config
     service ssh restart;
 fi
 
