@@ -72,6 +72,15 @@ else
         echo "Site not installed. Pulling from repository ... "
         git config --global --unset https.proxy && git config --global --unset http.proxy
         git clone $(echo ${gitrepo}) moveme
+        # Allow for creating a new branch if specified in the configuration or docker run command.
+        if [ "$MAKE_GIT_BRANCH" != "" ]; 
+        then
+            gitbranchname=$MAKE_GIT_BRANCH
+            if [ "$TUTUM_SERVICE_FQDN" != "" ]; then gitbranchname=$(echo ${TUTUM_SERVICE_FQDN} |cut -d"." -f2); fi
+            if [ "$MAKE_GIT_BRANCH_NAME" != "" ]; then gitbranchname="$MAKE_GIT_BRANCH_NAME"; fi
+            git checkout -b ${gitbranchname} || true
+            git push origin ${gitbranchname} || true;
+        fi
         mv /srv/www/moveme/.* /data/
         mv /srv/www/moveme/* /data/
         rm -r /srv/www/moveme;
