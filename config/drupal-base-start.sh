@@ -131,6 +131,7 @@ if [ "$settingsfile" != "" ]; then cd /data/sites/default && if drush sql-connec
             then 
                 drush cc -y drush || true
                 drush sql-sync -y ${syncalias} @self || drush si -y $(echo "${drupalprofile}") $(echo "${dburl}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
+                drusy rsync -y ${syncalias}:%files @self:%files
             else
                 drush si -y $(echo "${drupalprofile}") $(echo "${dburl}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
             fi;
