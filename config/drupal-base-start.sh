@@ -120,7 +120,7 @@ if [ "$settingsfile" != "" ]; then cd /data/sites/default && if drush sql-connec
             drush sql-create -y $(echo "${dburl}") || true
             if [ "$syncalias" != "" ]; 
             then 
-                drush sql-sync -y ${syncalias} @self;
+                drush sql-sync -y ${syncalias} @self || drush si -y $(echo "${drupalprofile}") $(echo "${dburl}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
             else
                 drush si -y $(echo "${drupalprofile}") $(echo "${dburl}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
             fi;
