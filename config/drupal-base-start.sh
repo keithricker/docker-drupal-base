@@ -198,7 +198,9 @@ if [ "$installmodules" = true ];
     unset REBUILD;
 fi
 
+echo "Checking for additional command ... "
 if [ "$ADDITIONAL_COMMAND" != "" ] && [ "$ADDITIONAL_COMMAND" != "null" ];
     then
+    echo "Running additional command ..."
     $(echo "${ADDITIONAL_COMMAND}");
 fi
