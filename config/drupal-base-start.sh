@@ -112,7 +112,7 @@ if [ "$settingsfile" != "" ]; then cd /data/sites/default && if drush sql-connec
     [ -f /data/sites/${dirname}/settings.php ] || continue
     
     # if we're not in sites/default, but sites/default has configured settings and it's the same as this one, then skip
-    echo "moving to directory sites/default/${dirname}"
+    echo "moving to directory sites/${dirname}"
     cd /data/sites/${dirname}
     dsqct=$(drush sql-connect) || dsqct="" && true
     if [ "${dirname}" != "default" ] && [ "${dsqcdf}" != "" ] && [ "${dsqct}" = "${dsqcdf}" ]; then continue; fi;
