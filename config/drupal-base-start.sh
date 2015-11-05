@@ -3,6 +3,7 @@
 # If there is a private key defined in the env vars, then add it.
 echo "entering the start script ...."
 if [ "${PRIVATE_KEY_CONTENTS}" != "" ]; then
+    echo "Copying over the private key."
     echo "${PRIVATE_KEY_CONTENTS}" > ~/.ssh/${PRIVATE_KEY_FILE}
     sed -i 's/\\n/\
 /g' ~/.ssh/${PRIVATE_KEY_FILE}
@@ -111,6 +112,7 @@ if [ "$settingsfile" != "" ]; then cd /data/sites/default && if drush sql-connec
     [ -f /data/sites/${dirname}/settings.php ] || continue
     
     # if we're not in sites/default, but sites/default has configured settings and it's the same as this one, then skip
+    echo "moving to directory sites/default/${dirname}"
     cd /data/sites/${dirname}
     dsqct=$(drush sql-connect) || dsqct="" && true
     if [ "${dirname}" != "default" ] && [ "${dsqcdf}" != "" ] && [ "${dsqct}" = "${dsqcdf}" ]; then continue; fi;
@@ -119,24 +121,28 @@ if [ "$settingsfile" != "" ]; then cd /data/sites/default && if drush sql-connec
     drush pm-info node --fields=status || nonodetable=correct && true;
     if [ "$nonodetable" = "correct" ]; 
     then
-        echo "Site not installed"
+        echo "Site not installed. Checking db connection."
         drush sql-connect || drushsqlconnection=nada && true;
         if [ "$drushsqlconnection" != "nada" ]; 
         then
             echo "Settings file is configured. Installing site."
             dburl=$(php -r 'include "settings.php"; if (!empty($databases)) { $tdb=$databases["default"]["default"]; echo "--db-url=mysql://".$tdb["username"].":".$tdb["password"]."@".$tdb["host"].":".$tdb["port"]."/".$tdb["database"]; };')
             syncalias=$(php -r 'include "settings.php"; if (!empty($syncalias)) { echo $syncalias; }')
+            echo "running sql-create using db url: ${dburl}"
             drush sql-create -y $(echo "${dburl}") || true
             if [ "$syncalias" != "" ]; 
             then 
                 drush cc -y drush || true
+                echo "attempting to sync database with ${syncalias}"
                 drush sql-sync -y ${syncalias} @self || drush si -y $(echo "${drupalprofile}") $(echo "${dburl}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
-                drush rsync -y ${syncalias}:%files @self:%files
+                echo "attempting to sync files."
+                drush rsync -y ${syncalias}:%files @self:%files || true
             else
+                echo "No sync alias found. Performing normal drush site-install."
                 drush si -y $(echo "${drupalprofile}") $(echo "${dburl}") --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
             fi;
         else
-            echo "Settings file not configured. Connecting to database ..."
+            echo "Settings file not configured. Doing site-install using default settings ..."
             drush si -y $(echo "${drupalprofile}") --db-url=mysql://${dbsettings[username]}:${dbsettings[password]}@${dbsettings[host]}/${dbsettings[database]} --account-name=${drupalusername} --account-pass=${drupalpassword} --site-name="$(echo $drupalsitename)";
         fi;
         installsite=true;
