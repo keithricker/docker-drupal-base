@@ -197,3 +197,8 @@ if [ "$installmodules" = true ];
     drush vset page_cache_maximum_age 3600 && drush vset varnish_version 3
     unset REBUILD;
 fi
+
+if [ "$ADDITIONAL_COMMAND" != "" ] && [ "$ADDITIONAL_COMMAND" != "null" ];
+    then
+    $(echo "${ADDITIONAL_COMMAND}");
+fi
