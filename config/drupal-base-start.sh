@@ -152,10 +152,10 @@ done
 # Create files directory if it doesn't yet exist.
 cd /data && filesdirectory=/data/sites/default/files
 if [ ! -d "$filesdirectory" ]; then
-  mkdir -p /data/sites/default/files;
+  mkdir -p /data/sites/default/files
+  chown -R www-data:www-data /data/sites/default/files;
 fi
 chmod a+w /data/sites/default -R
-chown -R www-data:www-data /data/sites/default/files
 
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
