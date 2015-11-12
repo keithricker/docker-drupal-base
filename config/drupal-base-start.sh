@@ -156,6 +156,7 @@ if [ ! -d "$filesdirectory" ]; then
   chown -R www-data:www-data /data/sites/default/files;
 fi
 chmod a+w /data/sites/default -R
+chmod 775 /data/sites/default/files -R
 
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
