@@ -158,6 +158,13 @@ fi
 chmod a+w /data/sites/default -R
 chmod 775 /data/sites/default/files -R
 
+# Create temporary directory for drupal and apache if one doesn't exist
+tmpdirectory=/tmp/drupal;
+if [ ! -d "$tmpdirectory" ]; then
+  mkdir -p /tmp/drupal
+  chown -R www-data:www-data /tmp/drupal;
+fi
+
 # If we're not installing the site from scratch and we're using kalabox, then replace settings.php with kalabox settings.
 # Also, if app container is restarting, then we want to replace the mysql host with new ip.
 
