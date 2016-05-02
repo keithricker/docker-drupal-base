@@ -150,19 +150,22 @@ if [ "$settingsfile" != "" ]; then cd /data/sites/default && if drush sql-connec
 done
 
 # Create files directory if it doesn't yet exist.
+echo "Creating the files directory"
 cd /data && filesdirectory=/data/sites/default/files
 if [ ! -d "$filesdirectory" ]; then
-  mkdir -p /data/sites/default/files
-  chown -R www-data:www-data /data/sites/default/files;
+  echo 'files directory doesn not exist. Creating one.'
+  mkdir -p /data/sites/default/files || echo 'files directory not created.'
+  chown -R www-data:www-data /data/sites/default/files || echo 'Not able to set permissions for files directory.';
 fi
-chmod a+w /data/sites/default -R
-chmod 775 /data/sites/default/files -R
+chmod a+w /data/sites/default -R || echo 'unable to set permssions on sites/default directory.'
+chmod 775 /data/sites/default/files -R || echo 'unable to set permissions on files directory'
 
 # Create temporary directory for drupal and apache if one doesn't exist
 tmpdirectory=/tmp/drupal;
 if [ ! -d "$tmpdirectory" ]; then
   mkdir -p /tmp/drupal
 fi
+echo 'attempting to set permissions on tmp directory'
 chown -R www-data:www-data /tmp/drupal;
 chmod a+w /tmp/drupal -R
 chmod 775 /tmp/drupal -R
